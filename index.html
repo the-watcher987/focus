@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOCUS · Academic Dashboard</title>
+<meta name="theme-color" content="#0c1424">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{
+  --bg:#f3f5fa; --panel:#ffffff; --panel2:#f7f9fc; --text:#0f172a; --muted:#64748b; --line:#e3e8f1;
+  --accent:#2563eb; --accent-ink:#ffffff; --accent-soft:color-mix(in srgb,var(--accent) 12%,transparent);
+  --ok:#15803d; --ok-soft:#dcfce7; --warn:#b45309; --warn-soft:#fef3c7; --bad:#b91c1c; --bad-soft:#fee2e2;
+  --side:#0c1424; --side-2:#121c31; --side-text:#b8c3d6; --side-muted:#6f7d96;
+  --radius:14px; --radius-sm:9px;
+  --shadow:0 1px 2px rgba(15,23,42,.05),0 6px 20px rgba(15,23,42,.06);
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+[data-theme="dark"]{
+  --bg:#0a0f1c; --panel:#111a2c; --panel2:#0d1526; --text:#e6eaf2; --muted:#8e9bb3; --line:#1e2a42;
+  --accent-soft:color-mix(in srgb,var(--accent) 20%,transparent);
+  --ok:#4ade80; --ok-soft:rgba(74,222,128,.12); --warn:#fbbf24; --warn-soft:rgba(251,191,36,.12); --bad:#f87171; --bad-soft:rgba(248,113,113,.12);
+  --side:#060a14; --side-2:#0d1424;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+svg.i{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+svg.i.sm{width:15px;height:15px}
+
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+.side{background:var(--side);color:var(--side-text);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:18px 14px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 18px;color:#fff;font-weight:700;letter-spacing:.08em;font-size:15px}
+.brand .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 50%,#a855f7));display:grid;place-items:center}
+.brand small{display:block;font-weight:500;letter-spacing:0;color:var(--side-muted);font-size:12px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:11px;width:100%;border:0;background:none;color:var(--side-text);padding:9px 11px;border-radius:10px;cursor:pointer;text-align:left;font-weight:500}
+.nav-item:hover{background:var(--side-2);color:#fff}
+.nav-item.active{background:var(--side-2);color:#fff}
+.nav-item .chev{margin-left:auto;transition:transform .2s;opacity:.6}
+.nav-group.open .chev{transform:rotate(90deg)}
+.subnav{display:none;flex-direction:column;margin:2px 0 6px 20px;padding-left:12px;border-left:1px solid #1f2a40}
+.nav-group.open .subnav{display:flex}
+.sub-item{border:0;background:none;color:var(--side-muted);text-align:left;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:14px}
+.sub-item:hover{color:#fff}
+.sub-item.active{color:#fff;background:color-mix(in srgb,var(--accent) 28%,transparent)}
+.side-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid #1a2438;font-size:12px;color:var(--side-muted)}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:12px;padding:20px 32px 6px}
+.topbar h1{font-size:22px;letter-spacing:-.01em}
+.crumb{color:var(--muted);font-size:13px}
+.menu-btn{display:none}
+.content{padding:14px 32px 48px;max-width:1280px;width:100%}
+
+/* ---------- primitives ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.card + .card{margin-top:16px}
+.grid > .card,.grid > .card + .card{margin-top:0}
+.card-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.card-h h2{font-size:16px;font-weight:650}
+.card-h .sp{flex:1}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tiny{font-size:12px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);padding:8px 13px;border-radius:10px;cursor:pointer;font-weight:550;font-size:14px;white-space:nowrap}
+.btn:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.ghost{background:none;border-color:transparent}
+.btn.ghost:hover{background:var(--panel2)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:5px 9px;font-size:13px;border-radius:8px}
+.icon-btn{border:0;background:none;padding:6px;border-radius:8px;cursor:pointer;color:var(--muted);display:inline-grid;place-items:center}
+.icon-btn:hover{background:var(--panel2);color:var(--text)}
+.input,select.input,textarea.input{width:100%;border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:8px 11px;outline:none}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+textarea.input{resize:vertical;min-height:70px}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted);font-weight:550}
+label.f > span{padding-left:2px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px;font-size:14px}
+.divider{height:1px;background:var(--line);margin:14px 0}
+.progress{height:8px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.progress > i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.kbd{font-family:var(--mono);font-size:12px;background:var(--panel2);border:1px solid var(--line);padding:1px 6px;border-radius:6px}
+.notice{padding:12px 14px;border-radius:11px;background:var(--panel2);border:1px solid var(--line);font-size:13.5px}
+.notice.warn{background:var(--warn-soft);border-color:transparent}
+.notice.ok{background:var(--ok-soft);border-color:transparent}
+.notice.bad{background:var(--bad-soft);border-color:transparent}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--text)}
+.hidden{display:none !important}
+
+/* ---------- home ---------- */
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.hero h2{font-size:28px;letter-spacing:-.02em}
+.hero p{color:var(--muted)}
+.stat{padding:16px 18px}
+.stat .k{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stat .v{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+.stat .s{font-size:13px;color:var(--muted)}
+.agenda-item{display:grid;grid-template-columns:86px 4px 1fr;gap:12px;padding:9px 0;align-items:start}
+.agenda-item + .agenda-item{border-top:1px solid var(--line)}
+.agenda-item .t{font-size:13px;color:var(--muted);font-weight:600;padding-top:1px}
+.agenda-item .bar{width:4px;border-radius:4px;height:100%;min-height:22px}
+.agenda-item .ti{font-weight:600}
+.agenda-item .meta{font-size:12.5px;color:var(--muted)}
+.day-h{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:16px 0 4px}
+.day-h:first-child{margin-top:0}
+
+/* ---------- plan ---------- */
+.sem{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
+.sem + .sem{margin-top:14px}
+.sem-h{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sem-h .name{font-weight:700;font-size:15.5px;border:1px solid transparent;background:none;padding:3px 6px;border-radius:7px;min-width:120px}
+.sem-h .name:hover,.sem-h .name:focus{border-color:var(--line);background:var(--panel);outline:none}
+.sem-h .sp{flex:1}
+.sem-gpa{font-weight:700}
+.tw{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);font-weight:650}
+table.t td{padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+table.t tr:hover td{background:color-mix(in srgb,var(--panel2) 60%,transparent)}
+.cell{width:100%;border:1px solid transparent;background:none;padding:5px 7px;border-radius:7px;outline:none}
+.cell:hover{border-color:var(--line)}
+.cell:focus{border-color:var(--accent);background:var(--panel2)}
+select.cell{appearance:auto;cursor:pointer}
+.code{font-weight:650}
+td.c-apply{width:54px;text-align:center}
+td.c-cr{width:84px}
+td.c-gr{width:96px}
+td.c-act{width:118px;text-align:right;white-space:nowrap}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:pointer}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sem-foot{display:flex;gap:10px;padding:10px 16px;border-top:1px solid var(--line);align-items:center}
+.status-completed{color:var(--ok)}
+.gpa-big{font-size:44px;font-weight:750;letter-spacing:-.03em;line-height:1}
+
+/* ---------- drawer & modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(5,10,20,.45);backdrop-filter:blur(2px);z-index:50;display:flex;justify-content:flex-end}
+.overlay.center{justify-content:center;align-items:center;padding:20px}
+.drawer{width:min(620px,100%);height:100%;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;animation:slide .18s ease}
+@keyframes slide{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
+.drawer-h{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+.drawer-h h3{font-size:19px}
+.drawer-b{padding:18px 22px;overflow-y:auto;flex:1}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-4px -22px 16px;padding:0 22px}
+.tab{border:0;background:none;padding:10px 12px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--text);border-color:var(--accent)}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:min(560px,100%);max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:pop .15s ease}
+.modal.wide{width:min(980px,100%);height:88vh;display:flex;flex-direction:column}
+@keyframes pop{from{transform:scale(.97);opacity:.5}to{transform:none;opacity:1}}
+.modal-h{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.modal-h h3{font-size:16.5px;flex:1}
+.modal-b{padding:18px 20px}
+.modal.wide .modal-b{flex:1;padding:0}
+.modal-f{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line)}
+.viewer{width:100%;height:100%;border:0;background:#fff}
+.oh-row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1.4fr auto;gap:8px;align-items:end;padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--panel2)}
+.oh-row + .oh-row{margin-top:8px}
+.days{display:flex;gap:4px;flex-wrap:wrap}
+.days label{cursor:pointer}
+.days input{display:none}
+.days span{display:inline-block;padding:4px 7px;border-radius:7px;border:1px solid var(--line);font-size:12px;font-weight:650;color:var(--muted);background:var(--panel)}
+.days input:checked + span{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* ---------- calendar ---------- */
+.cal-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.cal-top h2{font-size:20px;min-width:200px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:2px;background:var(--panel2)}
+.seg button{border:0;background:none;padding:5px 11px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;color:var(--muted)}
+.seg button.active{background:var(--panel);color:var(--text);box-shadow:var(--shadow)}
+.month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--line);gap:1px}
+.month .dow{background:var(--panel2);padding:8px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center}
+.mday{background:var(--panel);min-height:112px;padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.mday:hover{background:var(--panel2)}
+.mday.out{background:var(--panel2)}
+.mday.out .dn{opacity:.45}
+.mday .dn{font-size:12.5px;font-weight:650;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.mday.today .dn{background:var(--accent);color:var(--accent-ink)}
+.ev{font-size:11.5px;padding:2px 6px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:550;border-left:3px solid currentColor}
+.more{font-size:11.5px;color:var(--muted);padding-left:4px;font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.gframe{width:100%;height:720px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+
+/* ---------- resume ---------- */
+.res-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.avatar{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:grid;place-items:center;color:#fff;font-weight:750;font-size:22px;flex:none}
+.res-sec + .res-sec{margin-top:18px}
+.res-sec h4{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px}
+.entry{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.entry + .entry{margin-top:8px}
+.entry .eh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.entry .org{font-weight:650}
+.entry ul{margin:6px 0 0 18px}
+.entry li{margin:3px 0;font-size:14px}
+.slot-tabs{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ---------- grad ---------- */
+.school{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:var(--panel)}
+.school + .school{margin-top:8px}
+.school:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.school.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rank{width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:750;font-size:13px;flex:none}
+.req{display:flex;align-items:center;gap:10px;padding:7px 4px}
+.req + .req{border-top:1px solid var(--line)}
+.req input.cell{flex:1}
+.req.done input.cell{text-decoration:line-through;color:var(--muted)}
+
+/* ---------- misc ---------- */
+.toasts{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:100}
+.toast{background:var(--text);color:var(--panel);padding:11px 15px;border-radius:11px;font-size:14px;box-shadow:var(--shadow);max-width:380px;animation:pop .15s ease}
+.toast.error{background:var(--bad);color:#fff}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:10px;border:2px solid transparent;cursor:pointer}
+.sw.active{border-color:var(--text);box-shadow:0 0 0 3px var(--panel) inset}
+.theme-opt{border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;background:var(--panel2);text-align:left}
+.theme-opt.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.theme-prev{height:62px;border-radius:9px;margin-bottom:10px;border:1px solid var(--line)}
+.age-num{font-size:52px;font-weight:750;letter-spacing:-.03em;line-height:1}
+.note{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);border-left:4px solid var(--accent)}
+
+@media (max-width:1050px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:1fr 1fr}}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;left:0;top:0;bottom:0;width:272px;z-index:60;transform:translateX(-100%);transition:transform .2s}
+  body.nav-open .side{transform:none}
+  body.nav-open::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55}
+  .menu-btn{display:inline-grid}
+  .topbar,.content{padding-left:16px;padding-right:16px}
+  .g2,.g3,.g4,.grid{grid-template-columns:1fr !important}
+  .sem .tw table{min-width:560px}
+  .oh-row{grid-template-columns:1fr 1fr}
+  .mday{min-height:70px}
+  .ev{font-size:10px}
+  table.t .hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" data-act="toggleNav" aria-label="Menu"></button>
+      <div><div class="crumb" id="crumb"></div><h1 id="pageTitle"></h1></div>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+<div id="layer"></div>
+<div class="toasts" id="toasts"></div>
+<input type="file" id="filePick" class="hidden">
+
+<!-- Seed data: built from Allan's advising worksheet (Bulletin 2026-27), EE major map (Spring 2029) and ranked PhD list -->
+<script type="application/json" id="seed">
+{
+  "profile": {"name": "Allan", "fullName": "Allan M. Kalambayi", "school": "University of Kentucky", "major": "BS Electrical Engineering", "gradDate": "2029-05-15", "advisor": "Danielle Green-Hinkle"},
+  "semesters": [
+    {"name": "Transfer & exam credit", "status": "completed", "courses": [
+      ["CHE 105", "General College Chemistry I (as CHE 170)", 4, "A", {"transfer": true, "apply": false}],
+      ["ANT 130", "UK Core – Humanities", 3, "A", {"transfer": true, "apply": false}],
+      ["CJ 123", "UK Core – Social Sciences", 3, "B", {"transfer": true, "apply": false}],
+      ["GETA", "Citizenship – USA", 3, "CR", {"transfer": true, "apply": false}],
+      ["GETA", "Citizenship – Global Dynamics", 3, "CR", {"transfer": true, "apply": false}]
+    ]},
+    {"name": "Fall 2025", "status": "completed", "courses": [
+      ["MA 113", "Calculus I", 4, "B"],
+      ["PHY 231", "General University Physics", 4, "D"],
+      ["PHY 241", "General University Physics Laboratory", 1, "A"],
+      ["CS 115", "Programming (EGR 102 substitution)", 3, "A"],
+      ["WRD 112", "Composition & Communication", 3, "A"]
+    ]},
+    {"name": "Fall 2026", "status": "in-progress", "courses": [
+      ["MA 114", "Calculus II", 4, ""],
+      ["PHY 231", "General University Physics (repeat)", 4, ""],
+      ["CS 215", "Programming in C++", 4, ""],
+      ["EGR 215", "Engineering", 3, ""]
+    ]},
+    {"name": "Spring 2027", "status": "planned", "courses": [
+      ["EE 211", "Circuits I", 4, ""], ["EE/CPE 282", "Digital Logic Design", 4, ""], ["MA 213", "Calculus III", 4, ""],
+      ["PHY 232", "General University Physics II", 4, ""], ["PHY 242", "Physics II Laboratory", 1, ""]
+    ]},
+    {"name": "Summer 2027", "status": "planned", "courses": [
+      ["MA 214", "Calculus IV", 3, ""], ["STA 381", "Engineering Statistics", 3, ""]
+    ]},
+    {"name": "Fall 2027", "status": "planned", "courses": [
+      ["EE 223", "AC Circuits", 4, ""], ["EE/CPE 287", "Embedded Systems", 4, ""], ["MA 322", "Matrix Algebra (math/stat elective)", 3, ""],
+      ["ELECTIVE E1", "Engineering/science elective (suggested MA/CS 321)", 3, ""]
+    ]},
+    {"name": "Spring 2028", "status": "planned", "courses": [
+      ["EE 415G", "Electromechanics", 3, ""], ["EE 421G", "Signals and Systems", 3, ""], ["EE 461G", "Introduction to Electronics", 3, ""],
+      ["EE 468G", "Engineering Electromagnetics", 4, ""], ["EE 416G", "Energy Conversion Lab", 2, ""]
+    ]},
+    {"name": "Fall 2028", "status": "planned", "courses": [
+      ["EE 490", "Capstone Design I", 3, ""], ["EE 462G", "Electronic Circuits Lab", 2, ""],
+      ["EE TECH EE1", "EE technical elective (500-level)", 3, ""], ["EE TECH EE2", "EE technical elective (500-level)", 3, ""],
+      ["TECH T1", "General technical elective (suggested MA/CS 416G)", 3, ""]
+    ]},
+    {"name": "Spring 2029", "status": "planned", "courses": [
+      ["EE 491", "Capstone Design II", 3, ""], ["EE TECH EE3", "EE technical elective (500-level)", 3, ""],
+      ["EE TECH EE4", "EE technical elective (500-level)", 3, ""], ["ELECTIVE E2", "Engineering/science elective", 3, ""],
+      ["TECH T2", "General technical elective", 3, ""]
+    ]}
+  ],
+  "gradSchools": [
+    {"rank": 1, "name": "UC Berkeley", "location": "Berkeley, CA", "program": "EECS PhD"},
+    {"rank": 2, "name": "Georgia Tech", "location": "Atlanta, GA", "program": "ECE PhD"},
+    {"rank": 3, "name": "Purdue University", "location": "West Lafayette, IN", "program": "ECE PhD"},
+    {"rank": 4, "name": "University of Illinois Urbana-Champaign", "location": "Urbana-Champaign, IL", "program": "ECE PhD"},
+    {"rank": 5, "name": "University of Michigan", "location": "Ann Arbor, MI", "program": "ECE PhD"},
+    {"rank": 6, "name": "UT Austin", "location": "Austin, TX", "program": "ECE PhD"}
+  ],
+  "requirements": ["Statement of purpose", "Personal history / diversity statement (if required)", "3 letters of recommendation", "Transcripts", "CV / resume", "GRE (check if required)", "Application fee or fee waiver"],
+  "resumeSlots": ["General", "ETSC"],
+  "prereqs": ["# Format →  COURSE: must come first; concurrent CAN BE SAME TERM", "MIN C: CHE 105, MA 113, MA 114, EE 223",
+    "MA 213: MA 114", "MA 214: MA 213", "STA 381: MA 213", "EE 211: MA 114; concurrent PHY 232", "EE/CPE 282: CS 115", "PHY 232: PHY 231", "PHY 242: concurrent PHY 232",
+    "EE 223: EE 211", "EE/CPE 287: EE/CPE 282", "EE 421G: EE 223, MA 214", "EE 461G: EE 223", "EE 415G: EE 223, PHY 232", "EE 416G: concurrent EE 415G",
+    "EE 468G: EE 223, MA 214", "EE 462G: EE 223, EE 461G", "EE 491: EE 490"],
+  "milestones": [
+    ["Fall 2026", "Choose a possible faculty mentor; read 1–2 accessible papers and write down questions"],
+    ["Spring 2027", "Lab visits only: safety, software and data-handling orientation (2–3 h/week max)"],
+    ["Summer 2027", "Light reading in the research area you want to join in the fall"],
+    ["Fall 2027", "Join one lab: named faculty mentor by December, lab notebook, weekly check-in"],
+    ["Spring 2028", "First real project: replicate a baseline result; finish with a poster or internal report"],
+    ["Summer 2028", "Full-time research or REU if available; draft research statement"],
+    ["Fall 2028", "Ask for letters in October; submit PhD applications; lead a sub-project"],
+    ["Spring 2029", "Finish and present your research (report, poster or demo)"]
+  ]
+}
+</script>
+
+<script>
+"use strict";
+/* =====================================================================
+   FOCUS · academic dashboard (single file: HTML + CSS + JS + JSON seed)
+   Data lives in this browser: settings/plan in localStorage, uploaded
+   files (syllabi, resumes, grad-school docs) in IndexedDB.
+   ===================================================================== */
+
+const PDFJS_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs";
+const PDFJS_WORKER = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs";
+const STORE_KEY = "focus.v3";
+
+/* ---------------- tiny helpers ---------------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseYmd = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+const fmtTime = d => d.toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+const fmtDate = (d, o = {weekday: "short", month: "short", day: "numeric"}) => d.toLocaleDateString([], o);
+const hm = s => { if (!s) return null; const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+const hmLabel = s => { if (!s) return ""; const [h, m] = s.split(":").map(Number); const d = new Date(2000, 0, 1, h, m); return fmtTime(d); };
+const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
+
+const ICON = {
+  home:"M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
+  book:"M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5",
+  calendar:"M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM4 10h16M9 2v4M15 2v4",
+  briefcase:"M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6M3 13h18",
+  grid:"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
+  sliders:"M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6",
+  chev:"M9 6l6 6-6 6", chevL:"M15 6l-6 6 6 6",
+  plus:"M12 5v14M5 12h14", upload:"M12 16V4M7 9l5-5 5 5M4 20h16", download:"M12 4v12M7 11l5 5 5-5M4 20h16",
+  file:"M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8zM14 3v5h5",
+  trash:"M4 7h16M10 11v6M14 11v6M9 7V4h6v3M6 7l1 13h10l1-13", edit:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4",
+  clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2", x:"M6 6l12 12M18 6 6 18", menu:"M4 6h16M4 12h16M4 18h16",
+  refresh:"M20 11a8 8 0 0 0-14.9-3M4 4v4h4M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4",
+  link:"M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
+  check:"M5 12.5l4.5 4.5L19 7", chart:"M4 20V10M10 20V4M16 20v-7M21 20H3", cap:"M2 9l10-5 10 5-10 5zM6 11v5c0 1.4 2.7 3 6 3s6-1.6 6-3v-5M22 9v6",
+  user:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0", note:"M5 3h10l4 4v14H5zM9 10h6M9 14h6M9 18h4",
+  eye:"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  pin:"M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  cake:"M4 21h16M5 21v-8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8M5 16c2 1.3 4.7 1.3 7 0s5-1.3 7 0M12 11V8M12 5.5a1 1 0 0 1 0-2",
+  spark:"M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z",
+  google:"M21 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.1a4.4 4.4 0 0 1-1.9 2.9v2.4h3.1c1.7-1.6 2.7-4 2.7-7.1zM12 21.5c2.6 0 4.7-.9 6.3-2.3l-3.1-2.4c-.8.6-1.9 1-3.2 1-2.5 0-4.6-1.7-5.3-3.9H3.5v2.5A9.5 9.5 0 0 0 12 21.5zM6.7 13.9a5.7 5.7 0 0 1 0-3.8V7.6H3.5a9.5 9.5 0 0 0 0 8.8zM12 6.3c1.4 0 2.6.5 3.6 1.4l2.7-2.7A9.5 9.5 0 0 0 3.5 7.6l3.2 2.5C7.4 7.9 9.5 6.3 12 6.3z"
+};
+const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICON[n] || ""}"/></svg>`;
+
+/* ---------------- storage ---------------- */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { toast("Browser storage is full or blocked. Export a backup from Settings → Data.", "error"); return false; } }
+};
+const FileDB = {
+  db: null, mem: new Map(),
+  open() {
+    if (this.db !== null) return Promise.resolve(this.db);
+    return new Promise(res => {
+      try {
+        const r = indexedDB.open("focus-files", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("files");
+        r.onsuccess = () => res(this.db = r.result);
+        r.onerror = () => res(this.db = false);
+      } catch { res(this.db = false); }
+    });
+  },
+  async put(id, rec) { const db = await this.open(); if (!db) { this.mem.set(id, rec); return; }
+    await new Promise((res, rej) => { const t = db.transaction("files", "readwrite"); t.objectStore("files").put(rec, id); t.oncomplete = res; t.onerror = () => rej(t.error); }); },
+  async get(id) { const db = await this.open(); if (!db) return this.mem.get(id);
+    return new Promise(res => { const t = db.transaction("files").objectStore("files").get(id); t.onsuccess = () => res(t.result); t.onerror = () => res(null); }); },
+  async keys() { const db = await this.open(); if (!db) return [...this.mem.keys()];
+    return new Promise(res => { const t = db.transaction("files").objectStore("files").getAllKeys(); t.onsuccess = () => res(t.result || []); t.onerror = () => res([]); }); },
+  async del(id) { if (!id) return; const db = await this.open(); if (!db) { this.mem.delete(id); return; }
+    await new Promise(res => { const t = db.transaction("files", "readwrite"); t.objectStore("files").delete(id); t.oncomplete = res; t.onerror = res; }); }
+};
+async function saveFile(file) { const id = "f_" + uid(), rec = {blob: file, name: file.name, type: file.type || guessType(file.name), size: file.size}; await FileDB.put(id, rec); Cloud.putFile(id, rec); return id; }
+function delFile(id) { if (!id) return; FileDB.del(id); Cloud.delFile(id); }
+function guessType(n) { n = n.toLowerCase(); if (n.endsWith(".pdf")) return "application/pdf"; if (/\.(png|jpe?g|gif|webp)$/.test(n)) return "image/" + n.split(".").pop().replace("jpg", "jpeg"); if (n.endsWith(".txt")) return "text/plain"; return "application/octet-stream"; }
+
+/* ---------------- state ---------------- */
+const SEED = JSON.parse(document.getElementById("seed").textContent);
+/* Courses that feed UK Engineering Standing (freshman-year block on the advising worksheet) */
+const ES_CODES = ["CHE 105", "MA 113", "MA 114", "PHY 231", "PHY 241", "CS 115", "CS 215", "WRD 112", "WRD 110", "WRD 111", "EGR 101", "EGR 102", "EGR 103", "EGR 215"];
+function course(code, title, credits, grade = "", o = {}) {
+  return {id: uid(), code, title, credits, grade, expected: "", apply: o.apply ?? true, transfer: !!o.transfer, es: o.es ?? ES_CODES.some(x => codeMatch(x, code)), notes: o.notes || "",
+    instructor: "", email: "", room: "", officeHours: [], keyDates: [], syllabus: null};
+}
+const DEFAULT_SETTINGS = {theme: "light", accent: "#2563eb", calendarId: "aanmukendi@gmail.com", gview: "MONTH", autoSync: true, useProxy: false, relayUrl: "", calView: "focus",
+  autoRepeat: true, maxCredits: 15, summerMax: 6, clientId: "", gcalIds: ["primary"], cloudSync: true,
+  notify: false, remindDays: [7, 3, 1], remindSources: ["due", "grad", "manual"], remindMinutes: 0};
+function seedState() {
+  return migrate({
+    v: 4,
+    profile: {...SEED.profile, birthdate: ""},
+    settings: {...DEFAULT_SETTINGS},
+    semesters: SEED.semesters.map(s => ({id: uid(), name: s.name, status: s.status, courses: s.courses.map(c => course(c[0], c[1], c[2], c[3], c[4] || {}))})),
+    events: [],
+    ics: {events: [], lastSync: null, source: "", label: ""},
+    gcal: {events: [], lastSync: null},
+    gradSchools: SEED.gradSchools.map(g => ({id: uid(), rank: g.rank, name: g.name, location: g.location, program: g.program, status: "Researching",
+      deadline: "", fee: "", minGpa: "", gre: "", english: "", website: "", faculty: "", info: "", notes: "",
+      requirements: SEED.requirements.map(t => ({id: uid(), text: t, done: false})), files: []})),
+    resumes: SEED.resumeSlots.map(l => ({id: uid(), label: l, current: null, history: []})),
+    research: {milestones: SEED.milestones.map(([term, text]) => ({id: uid(), term, text, done: false})), entries: []},
+    prereqs: SEED.prereqs.join("\n"),
+    notes: [], notified: {}, cloudFiles: {}, updatedAt: 0,
+    ui: {gradSel: null, resumeSel: null, courseSem: null}
+  });
+}
+/* Upgrades data saved by older versions without losing anything */
+function migrate(s) {
+  s.settings = {...DEFAULT_SETTINGS, ...(s.settings || {})};
+  s.profile = {...SEED.profile, birthdate: "", ...(s.profile || {})};
+  s.events ||= []; s.notes ||= []; s.notified ||= {}; s.cloudFiles ||= {}; s.ui ||= {};
+  s.ics ||= {events: [], lastSync: null, source: "", label: ""};
+  if (s.ics.url) { try { if (!localStorage.getItem(ICS_KEY)) localStorage.setItem(ICS_KEY, s.ics.url); } catch {} delete s.ics.url; }
+  s.gcal ||= {events: [], lastSync: null};
+  s.research ||= {milestones: SEED.milestones.map(([term, text]) => ({id: uid(), term, text, done: false})), entries: []};
+  if (s.prereqs == null) s.prereqs = SEED.prereqs.join("\n");
+  s.resumes ||= SEED.resumeSlots.map(l => ({id: uid(), label: l, current: null, history: []}));
+  s.gradSchools ||= [];
+  for (const sem of s.semesters || []) for (const c of sem.courses) {
+    if (c.expected === undefined) c.expected = "";
+    if (c.es === undefined) c.es = ES_CODES.some(x => codeMatch(x, c.code));
+    if (/^Repeated in Fall 2026/.test(c.notes || "")) c.notes = "";
+    c.officeHours ||= []; c.keyDates ||= [];
+  }
+  s.v = 4; return s;
+}
+const STATE_KEY_OLD = "focus.v3";
+const ICS_KEY = "focus.icsUrl.device"; // secret iCal link: kept on this device only, never synced or exported
+let S;
+const save = (opts = {}) => { if (!opts.silent) S.updatedAt = Date.now(); const ok = LS.set(STORE_KEY, S); if (!opts.silent) Cloud.schedulePush(); return ok; };
+
+/* ---------------- toasts ---------------- */
+function toast(msg, type = "") {
+  const t = document.createElement("div"); t.className = "toast " + type; t.textContent = msg;
+  $("#toasts").appendChild(t); setTimeout(() => t.remove(), type === "error" ? 6500 : 3200);
+}
+
+/* ---------------- theme ---------------- */
+function applyTheme() {
+  const t = S.settings.theme === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : S.settings.theme;
+  document.documentElement.dataset.theme = t;
+  document.documentElement.style.setProperty("--accent", S.settings.accent || "#2563eb");
+  $('meta[name="theme-color"]')?.setAttribute("content", t === "dark" ? "#0a0f1c" : "#0c1424");
+}
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => S && applyTheme());
+
+/* =====================================================================
+   GPA (UK rules: A=4 … E=0, no +/-; P/CR/W/I don't count)
+   ===================================================================== */
+const POINTS = {A: 4, B: 3, C: 2, D: 1, E: 0};
+const GRADES = ["", "A", "B", "C", "D", "E", "P", "CR", "W", "I"];
+const EXPECTED = ["", "A", "B", "C", "D", "E"];
+const EARNS = ["A", "B", "C", "D", "P", "CR", "S"];
+function parseCode(s) { const m = /^\s*([A-Za-z]+(?:\/[A-Za-z]+)*)\s*(\d{3}[A-Za-z]?)\b/.exec(s || ""); return m ? {d: m[1].toUpperCase().split("/"), n: m[2].toUpperCase()} : null; }
+function codeMatch(a, b) { const x = parseCode(a), y = parseCode(b); return !!(x && y && x.n === y.n && x.d.some(d => y.d.includes(d))); }
+/* Repeat option: when a course is retaken and the later attempt has a letter grade
+   (or an expected grade, for projections), earlier attempts stop counting. */
+function supersededIds(projected) {
+  const out = new Map(); if (!S.settings.autoRepeat) return out;
+  const flat = S.semesters.flatMap(s => s.courses);
+  const gradeOf = c => POINTS[c.grade] !== undefined ? c.grade : (projected && !c.grade && POINTS[c.expected] !== undefined ? c.expected : null);
+  flat.forEach((c, i) => {
+    if (!parseCode(c.code) || POINTS[c.grade] === undefined) return;
+    const later = flat.slice(i + 1).find(k => codeMatch(k.code, c.code) && gradeOf(k));
+    if (later) out.set(c.id, later);
+  });
+  return out;
+}
+function gpaOf(courses, projected = false, sup = supersededIds(projected)) {
+  let q = 0, c = 0;
+  for (const k of courses) {
+    if (!k.apply || sup.has(k.id)) continue;
+    const g = POINTS[k.grade] !== undefined ? k.grade : (projected && !k.grade ? k.expected : "");
+    const p = POINTS[g]; if (p === undefined) continue; q += p * +k.credits; c += +k.credits;
+  }
+  return {gpa: c ? q / c : null, credits: c, quality: q};
+}
+const allCourses = () => S.semesters.flatMap(s => s.courses.map(c => ({...c, sem: s})));
+function totals() {
+  const all = allCourses(), sup = supersededIds(false);
+  const g = gpaOf(all, false, sup);
+  const proj = gpaOf(all, true);
+  const es = gpaOf(all.filter(c => c.es).map(c => ({...c, apply: c.apply || c.transfer})), false, sup); // worksheet counts transfer courses like CHE 105
+  const earned = all.filter(c => EARNS.includes(c.grade) && (c.apply || c.transfer) && !sup.has(c.id)).reduce((a, c) => a + +c.credits, 0);
+  const remaining = all.filter(c => !c.grade && c.sem.status !== "completed").reduce((a, c) => a + +c.credits, 0);
+  const ungradedApplied = all.filter(c => !c.grade && c.apply && c.sem.status !== "completed").reduce((a, c) => a + +c.credits, 0);
+  return {...g, projected: proj.gpa, projCredits: proj.credits, es: es.gpa, esCredits: es.credits, earned, remaining, ungradedApplied, total: earned + remaining, sup};
+}
+const fmtGpa = g => g == null ? "—" : g.toFixed(2);
+function currentSemester() { return S.semesters.find(s => s.status === "in-progress") || S.semesters.find(s => s.status === "planned") || S.semesters[S.semesters.length - 1]; }
+
+/* ---------- plan checks: prerequisites, C-or-better, credit caps ---------- */
+function parseRules(text) {
+  const rules = [], minC = [];
+  for (const line of (text || "").split("\n")) {
+    const t = line.trim(); if (!t || t.startsWith("#")) continue;
+    const m = /^(.+?):\s*(.*)$/.exec(t); if (!m) continue;
+    if (/^min\s*c$/i.test(m[1].trim())) { minC.push(...m[2].split(",").map(x => x.trim()).filter(Boolean)); continue; }
+    const before = [], with_ = [];
+    for (const part of m[2].split(";")) {
+      const conc = /^\s*concurrent\s+/i.test(part);
+      part.replace(/^\s*concurrent\s+/i, "").split(",").map(x => x.trim()).filter(Boolean).forEach(x => (conc ? with_ : before).push(x));
+    }
+    rules.push({target: m[1].trim(), before, with: with_});
+  }
+  return {rules, minC};
+}
+function planWarnings() {
+  const {rules, minC} = parseRules(S.prereqs); const W = new Map(); // semId -> [msgs]
+  const add = (sid, msg) => { if (!W.has(sid)) W.set(sid, []); W.get(sid).push(msg); };
+  const failed = g => ["E", "W", "I"].includes(g);
+  const sup = supersededIds(true);
+  S.semesters.forEach((s, i) => {
+    if (s.status !== "completed") {
+      const cr = s.courses.reduce((a, c) => a + +c.credits, 0), summer = /summer/i.test(s.name), cap = summer ? +S.settings.summerMax : +S.settings.maxCredits;
+      if (cap && cr > cap) add(s.id, `${cr} credits is over your ${cap}-credit ${summer ? "summer " : ""}limit`);
+    }
+    for (const c of s.courses) {
+      if (minC.some(x => codeMatch(x, c.code)) && ["D", "E"].includes(c.grade) && !sup.has(c.id)) add(s.id, `${c.code} needs a C or better`);
+      if (s.status === "completed") continue;
+      for (const r of rules.filter(r => codeMatch(r.target, c.code))) {
+        const check = (req, allowSame) => {
+          const prior = S.semesters.slice(0, allowSame ? i + 1 : i).flatMap(x => x.courses).filter(k => codeMatch(k.code, req) && k.id !== c.id);
+          if (!prior.length) return `${c.code} needs ${req}${allowSame ? " (same term or earlier)" : " first"}`;
+          if (prior.every(k => failed(k.grade))) return `${c.code} needs ${req}, which isn't passed yet`;
+          return null;
+        };
+        for (const req of r.before) { const m = check(req, false); if (m) add(s.id, m); }
+        for (const req of r.with) { const m = check(req, true); if (m) add(s.id, m); }
+      }
+    }
+  });
+  return W;
+}
+
+/* =====================================================================
+   iCalendar (.ics) parsing + recurrence expansion
+   ===================================================================== */
+function tzOffsetMs(utcMs, tz) {
+  try {
+    const p = new Intl.DateTimeFormat("en-US", {timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit"})
+      .formatToParts(new Date(utcMs)).reduce((o, x) => (o[x.type] = x.value, o), {});
+    return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second) - utcMs;
+  } catch { return -new Date(utcMs).getTimezoneOffset() * 60000; }
+}
+function zonedToUtc(y, mo, d, h, mi, s, tz) {
+  const guess = Date.UTC(y, mo, d, h, mi, s);
+  let t = guess - tzOffsetMs(guess, tz);
+  t = guess - tzOffsetMs(t, tz);
+  return t;
+}
+function wallParts(ms, tz) {
+  const off = tzOffsetMs(ms, tz); const d = new Date(ms + off);
+  return {y: d.getUTCFullYear(), mo: d.getUTCMonth(), d: d.getUTCDate(), h: d.getUTCHours(), mi: d.getUTCMinutes(), s: d.getUTCSeconds()};
+}
+function parseIcsDate(val, params) {
+  const m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/.exec((val || "").trim());
+  if (!m) return null;
+  const [, y, mo, d, h, mi, s, z] = m;
+  if (h === undefined || (params.VALUE === "DATE")) return {allDay: true, date: `${y}-${mo}-${d}`};
+  const tz = z ? "UTC" : (params.TZID ? params.TZID.replace(/^"|"$/g, "") : LOCAL_TZ);
+  const ms = z ? Date.UTC(+y, +mo - 1, +d, +h, +mi, +(s || 0)) : zonedToUtc(+y, +mo - 1, +d, +h, +mi, +(s || 0), validTz(tz));
+  return {allDay: false, ms, tz: validTz(tz)};
+}
+function validTz(tz) { try { new Intl.DateTimeFormat("en-US", {timeZone: tz}); return tz; } catch { return LOCAL_TZ; } }
+function unescapeIcs(s) { return (s || "").replace(/\\n/gi, "\n").replace(/\\([,;\\])/g, "$1"); }
+function parseICS(text) {
+  const lines = text.replace(/\r\n/g, "\n").replace(/\n[ \t]/g, "").split("\n");
+  const out = []; let ev = null, depth = 0, calName = "";
+  for (const raw of lines) {
+    if (!raw.trim()) continue;
+    const ci = raw.indexOf(":"); if (ci < 0) continue;
+    const left = raw.slice(0, ci), value = raw.slice(ci + 1);
+    const [name, ...ps] = left.split(";");
+    const params = {}; ps.forEach(p => { const [k, v] = p.split("="); params[k.toUpperCase()] = v; });
+    const N = name.toUpperCase();
+    if (N === "X-WR-CALNAME") calName = unescapeIcs(value);
+    if (N === "BEGIN") { if (value === "VEVENT") { ev = {exdates: []}; depth = 0; } else if (ev) depth++; continue; }
+    if (N === "END") { if (value === "VEVENT" && ev) { if (ev.start) out.push(ev); ev = null; } else if (ev) depth--; continue; }
+    if (!ev || depth > 0) continue;
+    switch (N) {
+      case "UID": ev.uid = value; break;
+      case "SUMMARY": ev.title = unescapeIcs(value); break;
+      case "LOCATION": ev.location = unescapeIcs(value); break;
+      case "DESCRIPTION": ev.description = unescapeIcs(value).slice(0, 600); break;
+      case "STATUS": ev.status = value.toUpperCase(); break;
+      case "DTSTART": ev.start = parseIcsDate(value, params); break;
+      case "DTEND": ev.end = parseIcsDate(value, params); break;
+      case "DURATION": ev.duration = value; break;
+      case "RRULE": ev.rrule = Object.fromEntries(value.split(";").map(p => p.split("=")).map(([k, v]) => [k.toUpperCase(), v])); break;
+      case "EXDATE": value.split(",").forEach(v => { const d = parseIcsDate(v, params); if (d) ev.exdates.push(d.allDay ? d.date : d.ms); }); break;
+      case "RECURRENCE-ID": ev.recurrenceId = parseIcsDate(value, params); break;
+    }
+  }
+  return {events: out, calName};
+}
+function durMs(ev) {
+  if (ev.end) {
+    if (ev.start.allDay) return (parseYmd(ev.end.date) - parseYmd(ev.start.date));
+    return ev.end.ms - ev.start.ms;
+  }
+  if (ev.duration) { const m = /P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?/.exec(ev.duration) || [];
+    return ((+m[1] || 0) * 7 * 864e5) + ((+m[2] || 0) * 864e5) + ((+m[3] || 0) * 36e5) + ((+m[4] || 0) * 6e4) + ((+m[5] || 0) * 1e3); }
+  return ev.start.allDay ? 864e5 : 36e5;
+}
+const BYDAY_IDX = {SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6};
+/* Returns occurrence start keys (ms for timed, 'YYYY-MM-DD' for all-day) within [from, to] */
+function expandRule(ev, fromMs, toMs) {
+  const r = ev.rrule, res = [];
+  const all = ev.start.allDay, tz = ev.start.tz || LOCAL_TZ;
+  const w = all ? (() => { const d = parseYmd(ev.start.date); return {y: d.getFullYear(), mo: d.getMonth(), d: d.getDate(), h: 0, mi: 0, s: 0}; })() : wallParts(ev.start.ms, tz);
+  const toKey = (y, mo, d) => all ? ymd(new Date(y, mo, d)) : zonedToUtc(y, mo, d, w.h, w.mi, w.s, tz);
+  const keyMs = k => all ? parseYmd(k).getTime() : k;
+  const until = r.UNTIL ? (() => { const u = parseIcsDate(r.UNTIL, {}); return u.allDay ? parseYmd(u.date).getTime() + 864e5 - 1 : u.ms; })() : Infinity;
+  const count = r.COUNT ? +r.COUNT : Infinity, interval = +(r.INTERVAL || 1), freq = r.FREQ;
+  const byday = r.BYDAY ? r.BYDAY.split(",").map(s => s.replace(/^[+-]?\d+/, "")).map(s => BYDAY_IDX[s]).filter(x => x !== undefined) : null;
+  const bymd = r.BYMONTHDAY ? r.BYMONTHDAY.split(",").map(Number) : null;
+  let n = 0, guard = 0; const MAXG = freq === "DAILY" ? 40000 : 8000; const base = new Date(Date.UTC(w.y, w.mo, w.d));
+  const push = (y, mo, d) => { const k = toKey(y, mo, d); const km = keyMs(k); if (km < keyMs(toKey(w.y, w.mo, w.d))) return true; if (km > until || n >= count) return false; n++; if (km >= fromMs && km <= toMs) res.push(k); return km <= toMs; };
+  outer: for (let i = 0; guard < MAXG; i++) {
+    guard++;
+    if (freq === "DAILY") { const d = new Date(base); d.setUTCDate(d.getUTCDate() + i * interval); if (!push(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())) break; }
+    else if (freq === "WEEKLY") {
+      const days = byday && byday.length ? [...byday].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)) : [base.getUTCDay()];
+      const ws = new Date(base); ws.setUTCDate(ws.getUTCDate() - ((ws.getUTCDay() + 6) % 7) + i * 7 * interval); // Monday of week
+      for (const dd of days) { const d = new Date(ws); d.setUTCDate(d.getUTCDate() + ((dd + 6) % 7)); if (!push(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())) break outer; }
+    }
+    else if (freq === "MONTHLY") {
+      const y = w.y + Math.floor((w.mo + i * interval) / 12), mo = (w.mo + i * interval) % 12;
+      if (byday && r.BYDAY && /^[+-]?\d/.test(r.BYDAY)) { // e.g. 2TU / -1FR
+        for (const tok of r.BYDAY.split(",")) { const m = /^([+-]?\d+)(\w\w)$/.exec(tok); if (!m) continue; const nth = +m[1], wd = BYDAY_IDX[m[2]];
+          const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(); const cands = []; for (let d = 1; d <= last; d++) if (new Date(Date.UTC(y, mo, d)).getUTCDay() === wd) cands.push(d);
+          const d = nth > 0 ? cands[nth - 1] : cands[cands.length + nth]; if (d && !push(y, mo, d)) break outer; }
+      } else { for (const d of (bymd || [w.d])) { const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(); if (d <= last && !push(y, mo, d)) break outer; } }
+    }
+    else if (freq === "YEARLY") { if (!push(w.y + i * interval, w.mo, w.d)) break; }
+    else { push(w.y, w.mo, w.d); break; }
+  }
+  return res;
+}
+function icsOccurrences(fromMs, toMs) {
+  const evs = S.ics.events || []; const out = [];
+  const overrides = new Map(); // uid -> Map(key -> ev)
+  for (const e of evs) if (e.recurrenceId) { if (!overrides.has(e.uid)) overrides.set(e.uid, new Map()); overrides.get(e.uid).set(e.recurrenceId.allDay ? e.recurrenceId.date : e.recurrenceId.ms, e); }
+  const add = (e, key) => {
+    const dur = durMs(e); let start, end;
+    if (e.start.allDay) { start = parseYmd(key); end = new Date(start.getTime() + dur); } else { start = new Date(key); end = new Date(key + dur); }
+    if (end.getTime() < fromMs || start.getTime() > toMs) return;
+    out.push({id: "ics:" + e.uid + ":" + key, title: e.title || "(no title)", start, end, allDay: !!e.start.allDay, location: e.location || "", notes: e.description || "", source: "google"});
+  };
+  for (const e of evs) {
+    if (e.recurrenceId || e.status === "CANCELLED") { if (e.recurrenceId && e.status !== "CANCELLED") add(e, e.start.allDay ? e.start.date : e.start.ms); continue; }
+    const ex = new Set(e.exdates || []); const ov = overrides.get(e.uid);
+    const keys = e.rrule ? expandRule(e, fromMs - 864e5 * 2, toMs) : [e.start.allDay ? e.start.date : e.start.ms];
+    for (const k of keys) { if (ex.has(k) || (ov && ov.has(k))) continue; add(e, k); }
+  }
+  return out;
+}
+const icsUrl = () => { try { return localStorage.getItem(ICS_KEY) || ""; } catch { return ""; } };
+const setIcsUrl = u => { try { u ? localStorage.setItem(ICS_KEY, u) : localStorage.removeItem(ICS_KEY); } catch {} };
+async function fetchICS(url) {
+  url = url.trim().replace(/^webcal:\/\//i, "https://");
+  const tries = [url];
+  const relay = (S.settings.relayUrl || "").trim(); if (relay) tries.unshift(relay + (relay.includes("?") ? "&" : "?") + "url=" + encodeURIComponent(url));
+  if (S.settings.useProxy) tries.push("https://corsproxy.io/?url=" + encodeURIComponent(url), "https://api.allorigins.win/raw?url=" + encodeURIComponent(url));
+  let last;
+  for (const u of tries) {
+    try { const r = await fetch(u, {cache: "no-store"}); if (!r.ok) throw new Error("HTTP " + r.status); const t = await r.text();
+      if (!/BEGIN:VCALENDAR/.test(t)) throw new Error("That link didn't return a calendar (.ics) file."); return t; }
+    catch (e) { last = e; }
+  }
+  throw last;
+}
+function loadIcsText(text, source, label) {
+  const {events, calName} = parseICS(text);
+  if (!events.length) throw new Error("No events found in that calendar file.");
+  S.ics.events = events; S.ics.lastSync = Date.now(); S.ics.source = source; S.ics.label = calName || label || "Google Calendar"; save();
+  return events.length;
+}
+async function syncNow(quiet) {
+  if (!icsUrl()) { if (!quiet) toast("Paste your Google Calendar iCal link first.", "error"); return; }
+  try { const n = loadIcsText(await fetchICS(icsUrl()), "url"); S.ics.error = ""; save(); if (!quiet) toast(`Synced ${n} events from Google Calendar.`); render(); }
+  catch (e) {
+    S.ics.error = (e && e.message && /fetch|network|cors|load failed/i.test(e.message)) || e instanceof TypeError
+      ? "Your browser blocked the download (Google doesn't let websites read calendar links directly). Best fix: “Connect Google” above. Otherwise add your own relay (SETUP.md), turn on the public relay, or upload the .ics file."
+      : (e.message || "Sync failed."); save(); if (!quiet) toast("Calendar sync failed — see the Google Calendar tab.", "error"); render();
+  }
+}
+
+/* =====================================================================
+   Unified event feed (manual + Google + office hours + key dates + grad deadlines)
+   ===================================================================== */
+const SRC = {
+  manual: {label: "My events", color: "#2563eb"}, google: {label: "Google Calendar", color: "#0f9d58"},
+  office: {label: "Office hours", color: "#9333ea"}, due: {label: "Course dates", color: "#dc2626"}, grad: {label: "Grad deadlines", color: "#d97706"}
+};
+function eventsBetween(from, to) {
+  const fMs = from.getTime(), tMs = to.getTime(), out = [];
+  for (const e of S.events) {
+    const d = parseYmd(e.date);
+    const start = e.allDay || !e.start ? d : new Date(d.getFullYear(), d.getMonth(), d.getDate(), ...e.start.split(":").map(Number));
+    const end = e.allDay || !e.end ? new Date(start.getTime() + (e.allDay || !e.start ? 864e5 : 36e5)) : new Date(d.getFullYear(), d.getMonth(), d.getDate(), ...e.end.split(":").map(Number));
+    if (end.getTime() >= fMs && start.getTime() <= tMs) out.push({id: e.id, title: e.title, start, end, allDay: e.allDay || !e.start, location: e.location, notes: e.notes, source: "manual", category: e.category});
+  }
+  if (S.gcal?.events?.length) out.push(...gcalOccurrences(fMs, tMs)); else out.push(...icsOccurrences(fMs, tMs));
+  for (const s of S.semesters) for (const c of s.courses) {
+    for (const oh of c.officeHours || []) {
+      if (!oh.days?.length || !oh.start) continue;
+      const active = s.status === "in-progress" || oh.from || oh.to; if (!active) continue;
+      for (let d = startOfDay(from); d <= to; d = addDays(d, 1)) {
+        if (!oh.days.includes(d.getDay())) continue; const k = ymd(d);
+        if (oh.from && k < oh.from) continue; if (oh.to && k > oh.to) continue;
+        const [h, m] = oh.start.split(":").map(Number); const st = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m);
+        const en = oh.end ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), ...oh.end.split(":").map(Number)) : new Date(st.getTime() + 36e5);
+        out.push({id: "oh:" + oh.id + k, title: `${c.code} office hours${oh.who ? " · " + oh.who : ""}`, start: st, end: en, allDay: false, location: oh.location, source: "office", courseRef: [s.id, c.id]});
+      }
+    }
+    for (const kd of c.keyDates || []) { if (!kd.date) continue; const d = parseYmd(kd.date);
+      let st = d, allDay = true; if (kd.time) { st = new Date(d.getFullYear(), d.getMonth(), d.getDate(), ...kd.time.split(":").map(Number)); allDay = false; }
+      if (st >= startOfDay(from) && st <= to) out.push({id: "kd:" + kd.id, title: `${c.code}: ${kd.label || "Due"}`, start: st, end: new Date(st.getTime() + (allDay ? 864e5 : 36e5)), allDay, source: "due", courseRef: [s.id, c.id]}); }
+  }
+  for (const g of S.gradSchools) if (g.deadline) { const d = parseYmd(g.deadline); if (d >= startOfDay(from) && d <= to) out.push({id: "gd:" + g.id, title: `${g.name} application due`, start: d, end: addDays(d, 1), allDay: true, source: "grad", gradRef: g.id}); }
+  return out.sort((a, b) => (startOfDay(a.start) - startOfDay(b.start)) || (b.allDay - a.allDay) || (a.start - b.start));
+}
+const eventsOnDay = d => eventsBetween(startOfDay(d), new Date(startOfDay(d).getTime() + 864e5 - 1)).filter(e => e.allDay ? sameDay(e.start, d) || (e.start <= d && e.end > d) : true);
+
+/* =====================================================================
+   Resume parsing (PDF → structured key points)
+   ===================================================================== */
+let pdfjsP = null;
+function loadPdfjs() { return pdfjsP ??= import(PDFJS_URL).then(m => { m.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; return m; }); }
+async function pdfLines(buf) {
+  const pdfjs = await loadPdfjs();
+  const doc = await pdfjs.getDocument({data: buf}).promise; const out = [];
+  for (let p = 1; p <= doc.numPages; p++) {
+    const page = await doc.getPage(p); const tc = await page.getTextContent(); const rows = [];
+    for (const it of tc.items) {
+      if (!it.str || !it.str.trim()) continue;
+      const x = it.transform[4], y = it.transform[5], h = Math.abs(it.transform[3]) || it.height || 10;
+      let row = rows.find(r => Math.abs(r.y - y) < Math.max(2.5, h * 0.35));
+      if (!row) rows.push(row = {y, items: []});
+      row.items.push({x, w: it.width, str: it.str, h});
+    }
+    rows.sort((a, b) => b.y - a.y);
+    for (const r of rows) {
+      r.items.sort((a, b) => a.x - b.x); let text = "", end = null;
+      for (const it of r.items) { if (end !== null) { const gap = it.x - end; if (gap > 24) text += "\t"; else if (gap > 1 && !/\s$/.test(text) && !/^\s/.test(it.str)) text += " "; } text += it.str; end = it.x + it.w; }
+      out.push({text: text.replace(/ {2,}/g, " ").replace(/ *\t */g, "\t").trim(), x: r.items[0].x, h: Math.max(...r.items.map(i => i.h))});
+    }
+  }
+  return out;
+}
+const BULLET = /^[•▪●◦‣⁃∙·■□➢✓✔❖▸►\-\*–]\s*/;
+const MON = "(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\\.?";
+const DATE_RE = new RegExp(`((?:${MON}\\s+)?\\d{4}\\s*(?:-|–|—|to)\\s*(?:(?:${MON}\\s+)?\\d{4}|Present|Current|Now)|(?:${MON}\\s+)?\\d{4}|Present)`, "i");
+const LOC_RE = /^[A-Z][A-Za-z .'-]+,\s*[A-Z]{2}$|Remote|Online/;
+const HEADINGS = /^(education|experience|work experience|professional experience|skills|technical skills|projects|affiliations|leadership|activities|awards|honors|certifications|publications|research|research experience|languages|summary|profile|objective|coursework|relevant coursework|volunteer|volunteering|involvement|military|service|interests)$/i;
+function isHeading(t) {
+  const s = t.replace(/[:\s]+$/, "").trim(); if (!s || s.includes("\t") || s.length > 40) return false;
+  if (HEADINGS.test(s)) return true;
+  const letters = s.replace(/[^A-Za-z]/g, ""); return letters.length >= 4 && letters === letters.toUpperCase() && s.split(/\s+/).length <= 4;
+}
+function parseResumeLines(lines) {
+  lines = lines.filter(l => l.text);
+  const r = {name: "", contacts: [], sections: [], raw: lines.map(l => l.text).join("\n")};
+  let i = 0;
+  if (lines[0] && !isHeading(lines[0].text)) { r.name = lines[0].text.replace(/\t/g, " "); i = 1; }
+  for (; i < Math.min(lines.length, 5); i++) {
+    const t = lines[i].text; if (isHeading(t)) break;
+    if (/@|\d{3}\D{0,2}\d{3}\D?\d{4}|linkedin|github|www\.|https?:/i.test(t)) r.contacts.push(...t.split(/\s*[•|·\t]\s*|\s{2,}/).map(s => s.trim()).filter(Boolean));
+    else if (i <= 2 && t.length < 80) r.contacts.push(t);
+    else break;
+  }
+  let sec = null, ent = null, lastBulletX = null, prevBullet = false;
+  const newEntry = () => { ent = {org: "", location: "", role: "", date: "", details: [], bullets: []}; sec.entries.push(ent); };
+  for (; i < lines.length; i++) {
+    const L = lines[i], t = L.text;
+    if (isHeading(t)) { sec = {title: t.replace(/:$/, ""), entries: []}; r.sections.push(sec); ent = null; prevBullet = false; continue; }
+    if (!sec) { sec = {title: "Summary", entries: []}; r.sections.push(sec); }
+    if (BULLET.test(t)) { if (!ent) newEntry(); ent.bullets.push(t.replace(BULLET, "").replace(/\t/g, " ")); lastBulletX = L.x; prevBullet = true; continue; }
+    if (prevBullet && ent && lastBulletX !== null && L.x > lastBulletX + 3) { ent.bullets[ent.bullets.length - 1] += " " + t.replace(/\t/g, " "); continue; }
+    prevBullet = false;
+    const parts = t.split("\t").map(s => s.trim()).filter(Boolean);
+    let left = parts[0] || "", right = parts.slice(1).join(" ");
+    if (!right) { const m = left.match(new RegExp(`\\s(${DATE_RE.source})$`, "i")); if (m && m.index > 3) { right = m[1]; left = left.slice(0, m.index).trim(); } }
+    const isLoc = right && LOC_RE.test(right);
+    if (!ent || ent.bullets.length || (ent.org && isLoc) || (ent.org && ent.role && right && !isLoc && ent.date)) newEntry();
+    const isDate = right && DATE_RE.test(right) && !LOC_RE.test(right);
+    if (!ent.org) { ent.org = left; if (right) isDate ? ent.date = right : ent.location = right; }
+    else if (!ent.role) { ent.role = left; if (right) isDate ? (ent.date = ent.date || right) : (ent.location = ent.location || right); }
+    else ent.details.push(t.replace(/\t/g, " · "));
+  }
+  // Pull skill chips from any section that looks like skills
+  const sk = r.sections.find(s => /skill/i.test(s.title));
+  r.skills = sk ? sk.entries.flatMap(e => [...e.bullets, e.org, e.role, ...e.details]).filter(Boolean).join(", ")
+    .replace(/^(experience|proficient|skilled|familiar) (in|with)\s+/i, "").split(/,|;|\band\b|\bwith\b|\|/i).map(s => s.trim().replace(/^(experience in|specialized training in|training in|including)\s+/i, "").replace(/\.$/, "").trim())
+    .filter(s => s && s.length < 48) : [];
+  return r;
+}
+async function parseResumeFile(file) {
+  const buf = await file.arrayBuffer();
+  if (/pdf/i.test(file.type) || /\.pdf$/i.test(file.name)) return parseResumeLines(await pdfLines(new Uint8Array(buf)));
+  const text = new TextDecoder().decode(buf);
+  return parseResumeLines(text.split(/\r?\n/).map(t => ({text: t.replace(/ {3,}/g, "\t").trim(), x: (t.match(/^\s*/)[0].length) * 5})));
+}
+
+/* =====================================================================
+   Google: sign-in (Google Identity Services), Drive sync, Calendar API
+   Needs a free OAuth Client ID (see SETUP.md) and the page served over https.
+   ===================================================================== */
+const GSCOPES = "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email";
+const TOKEN_KEY = "focus.gtoken"; // sessionStorage: cleared when the browser closes
+const Cloud = {
+  token: null, exp: 0, email: "", busy: false, status: "", gisP: null, pushT: null, stateFileId: null,
+  get configured() { return !!S?.settings.clientId; },
+  get signedIn() { return !!this.token && Date.now() < this.exp - 60000; },
+  get canRun() { return /^https?:$/.test(location.protocol) && !/^file:/.test(location.href); },
+  restore() { try { const t = JSON.parse(sessionStorage.getItem(TOKEN_KEY) || "null"); if (t && Date.now() < t.exp - 60000) Object.assign(this, t); } catch {} this.email ||= LS.get("focus.gemail", ""); },
+  loadGIS() {
+    return this.gisP ??= new Promise((res, rej) => {
+      if (window.google?.accounts?.oauth2) return res();
+      const sc = document.createElement("script"); sc.src = "https://accounts.google.com/gsi/client"; sc.async = true;
+      sc.onload = () => res(); sc.onerror = () => { this.gisP = null; rej(new Error("Couldn't load Google sign-in. Check your connection.")); };
+      document.head.appendChild(sc);
+    });
+  },
+  async signIn() {
+    if (!this.configured) { toast("Add your Google Client ID first (Settings → Google & Sync).", "error"); return go("settings", "sync"); }
+    if (!this.canRun) return toast("Google sign-in only works when FOCUS is opened from a web address (https://…), not as a file. See SETUP.md.", "error");
+    await this.loadGIS();
+    await new Promise((res, rej) => {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: S.settings.clientId, scope: GSCOPES, hint: this.email || undefined,
+        callback: r => { if (r.error) return rej(new Error(r.error_description || r.error)); this.token = r.access_token; this.exp = Date.now() + (+r.expires_in || 3600) * 1000;
+          try { sessionStorage.setItem(TOKEN_KEY, JSON.stringify({token: this.token, exp: this.exp, email: this.email})); } catch {} res(); },
+        error_callback: e => rej(new Error(e?.type === "popup_closed" ? "Sign-in window was closed." : e?.type === "popup_failed_to_open" ? "Your browser blocked the Google pop-up. Allow pop-ups for this site." : (e?.message || "Sign-in failed.")))
+      });
+      client.requestAccessToken({prompt: this.email ? "" : "consent"});
+    });
+    try { const u = await (await this.api("https://www.googleapis.com/oauth2/v3/userinfo")).json(); this.email = u.email || ""; LS.set("focus.gemail", this.email);
+      sessionStorage.setItem(TOKEN_KEY, JSON.stringify({token: this.token, exp: this.exp, email: this.email})); } catch {}
+    toast("Connected to Google" + (this.email ? " as " + this.email : "") + ".");
+    await this.afterSignIn();
+  },
+  signOut() { try { if (this.token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(this.token); } catch {} this.token = null; this.exp = 0; sessionStorage.removeItem(TOKEN_KEY); rerender(); toast("Disconnected from Google."); },
+  async afterSignIn() {
+    this.busy = true; rerender();
+    try { if (S.settings.cloudSync) { await this.pull(); await this.uploadMissingFiles(); } await gcalRefresh(true); }
+    catch (e) { console.error(e); toast(e.message, "error"); }
+    finally { this.busy = false; rerender(); }
+  },
+  async api(url, opts = {}) {
+    if (!this.signedIn) throw new Error("Google session expired. Click “Connect Google” again.");
+    const r = await fetch(url, {...opts, headers: {...(opts.headers || {}), Authorization: "Bearer " + this.token}});
+    if (r.status === 401) { this.token = null; sessionStorage.removeItem(TOKEN_KEY); throw new Error("Google session expired. Click “Connect Google” again."); }
+    if (!r.ok) { let m = "Google returned " + r.status; try { m = (await r.json()).error?.message || m; } catch {} throw new Error(m); }
+    return r;
+  },
+  /* ---------- Drive (hidden app folder: only FOCUS can see these files) ---------- */
+  async driveFind(name) {
+    const q = encodeURIComponent(`name='${name.replace(/'/g, "\\'")}'`);
+    return (await (await this.api(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${q}&fields=files(id,name,modifiedTime)&pageSize=10`)).json()).files?.[0] || null;
+  },
+  async driveUpload(name, blob, id) {
+    const fd = new FormData();
+    fd.append("metadata", new Blob([JSON.stringify(id ? {} : {name, parents: ["appDataFolder"]})], {type: "application/json"}));
+    fd.append("file", blob);
+    const url = `https://www.googleapis.com/upload/drive/v3/files${id ? "/" + id : ""}?uploadType=multipart&fields=id`;
+    return (await (await this.api(url, {method: id ? "PATCH" : "POST", body: fd})).json()).id;
+  },
+  syncable() { const {ui, gcal, ...rest} = S; return rest; },
+  async pull() {
+    const f = await this.driveFind("focus-state.json");
+    if (!f) { await this.push(); return; }
+    this.stateFileId = f.id;
+    const remote = await (await this.api(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`)).json();
+    if ((remote.updatedAt || 0) > (S.updatedAt || 0)) {
+      const ui = S.ui, gcal = S.gcal; S = migrate({...remote, ui, gcal}); save({silent: true}); applyTheme();
+      this.status = "Loaded your latest data from Google Drive"; toast(this.status + ".");
+    } else if ((S.updatedAt || 0) > (remote.updatedAt || 0)) await this.push();
+    S.syncedAt = Date.now(); save({silent: true});
+  },
+  async push() {
+    if (!this.signedIn || !S.settings.cloudSync) return;
+    const blob = new Blob([JSON.stringify(this.syncable())], {type: "application/json"});
+    if (!this.stateFileId) this.stateFileId = (await this.driveFind("focus-state.json"))?.id || null;
+    this.stateFileId = await this.driveUpload("focus-state.json", blob, this.stateFileId);
+    S.syncedAt = Date.now(); save({silent: true}); this.status = "Saved to Google Drive";
+    const el = $("#syncChip"); if (el) el.textContent = "Synced " + fmtTime(new Date());
+  },
+  schedulePush() { if (!this.signedIn || !S.settings.cloudSync) return; clearTimeout(this.pushT); this.pushT = setTimeout(() => this.push().catch(e => toast("Sync: " + e.message, "error")), 2500); },
+  /* ---------- files (syllabi, resumes, grad docs) ---------- */
+  async putFile(id, rec) {
+    if (!this.signedIn || !S.settings.cloudSync) return;
+    try { S.cloudFiles[id] = await this.driveUpload("file-" + id, rec.blob, S.cloudFiles[id]); S.cloudFiles[id + ":meta"] = {name: rec.name, type: rec.type, size: rec.size}; save(); } catch (e) { console.warn(e); }
+  },
+  async getFile(id) {
+    let rec = await FileDB.get(id); if (rec) return rec;
+    const did = S.cloudFiles[id]; if (!did) return null;
+    if (!this.signedIn) { toast("This file is in your Google Drive. Connect Google to open it on this device.", "error"); return null; }
+    const blob = await (await this.api(`https://www.googleapis.com/drive/v3/files/${did}?alt=media`)).blob();
+    const meta = S.cloudFiles[id + ":meta"] || {}; rec = {blob: new Blob([blob], {type: meta.type || blob.type}), name: meta.name || id, type: meta.type || blob.type, size: blob.size};
+    await FileDB.put(id, rec); return rec;
+  },
+  async delFile(id) { const did = S.cloudFiles?.[id]; if (did && this.signedIn) { try { await this.api(`https://www.googleapis.com/drive/v3/files/${did}`, {method: "DELETE"}); } catch {} } if (S.cloudFiles) { delete S.cloudFiles[id]; delete S.cloudFiles[id + ":meta"]; } },
+  async uploadMissingFiles() {
+    const ids = await FileDB.keys(); let n = 0;
+    for (const id of ids) if (!S.cloudFiles[id]) { const rec = await FileDB.get(id); if (rec) { await this.putFile(id, rec); n++; } }
+    if (n) toast(`Backed up ${n} file${n > 1 ? "s" : ""} to Google Drive.`);
+  }
+};
+
+/* ---------- Google Calendar API ---------- */
+async function gcalCalendars() {
+  return (await (await Cloud.api("https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader&fields=items(id,summary,primary,backgroundColor)")).json()).items || [];
+}
+async function gcalRefresh(quiet) {
+  if (!Cloud.signedIn) { if (!quiet) toast("Connect Google first.", "error"); return; }
+  const from = addDays(startOfDay(new Date()), -90).toISOString(), to = addDays(new Date(), 270).toISOString(), all = [];
+  for (const cal of (S.settings.gcalIds?.length ? S.settings.gcalIds : ["primary"])) {
+    let page = "";
+    do {
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal)}/events?singleEvents=true&orderBy=startTime&maxResults=2500&timeMin=${encodeURIComponent(from)}&timeMax=${encodeURIComponent(to)}${page ? "&pageToken=" + page : ""}&fields=nextPageToken,items(id,status,summary,location,description,start,end,htmlLink,extendedProperties)`;
+      const j = await (await Cloud.api(url)).json();
+      for (const e of j.items || []) { if (e.status === "cancelled" || e.extendedProperties?.private?.focusId) continue;
+        all.push({id: e.id, title: e.summary || "(no title)", allDay: !!e.start?.date, start: e.start?.date || e.start?.dateTime, end: e.end?.date || e.end?.dateTime, location: e.location || "", notes: (e.description || "").slice(0, 600), link: e.htmlLink}); }
+      page = j.nextPageToken;
+    } while (page);
+  }
+  S.gcal = {events: all, lastSync: Date.now()}; save({silent: true}); LS.set(STORE_KEY, S);
+  if (!quiet) toast(`Loaded ${all.length} events from Google Calendar.`); rerender();
+}
+function gcalOccurrences(fMs, tMs) {
+  return (S.gcal?.events || []).map(e => {
+    const start = e.allDay ? parseYmd(e.start) : new Date(e.start), end = e.allDay ? parseYmd(e.end || e.start) : new Date(e.end || e.start);
+    return {id: "gc:" + e.id, title: e.title, start, end: e.allDay && end <= start ? addDays(start, 1) : end, allDay: e.allDay, location: e.location, notes: e.notes, link: e.link, source: "google"};
+  }).filter(e => e.end.getTime() >= fMs && e.start.getTime() <= tMs);
+}
+/* Create or update an event FOCUS owns (tagged so it's not shown twice) */
+async function gcalUpsert(focusId, body, existingId) {
+  body.extendedProperties = {private: {focusId}};
+  const base = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
+  if (existingId) { try { return (await (await Cloud.api(`${base}/${existingId}`, {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)})).json()).id; } catch (e) { if (!/404|410|Not Found|deleted/i.test(e.message)) throw e; } }
+  return (await (await Cloud.api(base, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)})).json()).id;
+}
+function reminderOverrides(allDay) {
+  const days = [...new Set(S.settings.remindDays || [1])].sort((a, b) => b - a).slice(0, 4);
+  const o = days.map(d => ({method: "popup", minutes: Math.min(40320, allDay ? Math.max(0, d * 1440 - 9 * 60) : d * 1440 || 60)}));
+  if (!allDay && !days.includes(0)) o.push({method: "popup", minutes: 60});
+  return {useDefault: false, overrides: o.slice(0, 5)};
+}
+function dateBody(date, time, mins = 60) {
+  if (!time) return {start: {date}, end: {date: ymd(addDays(parseYmd(date), 1))}};
+  const [h, m] = time.split(":").map(Number), end = new Date(2000, 0, 1, h, m + mins);
+  return {start: {dateTime: `${date}T${time}:00`, timeZone: LOCAL_TZ}, end: {dateTime: `${date}T${pad(end.getHours())}:${pad(end.getMinutes())}:00`, timeZone: LOCAL_TZ}};
+}
+async function needGoogle() { if (Cloud.signedIn) return true; if (!Cloud.configured || !Cloud.canRun) { toast("Set up Google sign-in first (Settings → Google & Sync).", "error"); return false; } try { await Cloud.signIn(); return Cloud.signedIn; } catch (e) { toast(e.message, "error"); return false; } }
+async function pushKeyDates() {
+  if (!(await needGoogle())) return; const c = dCourse(); let n = 0;
+  try { for (const k of c.keyDates.filter(k => k.date)) { k.gcalId = await gcalUpsert("kd:" + k.id, {summary: `${c.code}: ${k.label || "Due"}`, description: `${c.title}\nAdded by FOCUS`, ...dateBody(k.date, k.time, 75), reminders: reminderOverrides(!k.time), colorId: "11"}, k.gcalId); n++; }
+    save(); toast(`Sent ${n} date${n === 1 ? "" : "s"} to Google Calendar with reminders.`); openCourse(drawerState.sid, drawerState.cid, "dates"); }
+  catch (e) { toast(e.message, "error"); }
+}
+async function pushOfficeHours() {
+  if (!(await needGoogle())) return; const [s, c] = findCourse(drawerState.sid, drawerState.cid); let n = 0;
+  const BY = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  try { for (const o of c.officeHours.filter(o => o.days?.length && o.start)) {
+      let first = o.from ? parseYmd(o.from) : startOfDay(new Date()); while (!o.days.includes(first.getDay())) first = addDays(first, 1);
+      const until = o.to || ymd(addDays(new Date(), 120));
+      const body = {summary: `${c.code} office hours${o.who ? " · " + o.who : ""}`, location: o.location || "", description: "Added by FOCUS", ...dateBody(ymd(first), o.start, Math.max(15, (hm(o.end) || hm(o.start) + 60) - hm(o.start))),
+        recurrence: [`RRULE:FREQ=WEEKLY;BYDAY=${o.days.map(d => BY[d]).join(",")};UNTIL=${until.replace(/-/g, "")}T235959Z`], reminders: {useDefault: false, overrides: [{method: "popup", minutes: 30}]}, colorId: "3"};
+      o.gcalId = await gcalUpsert("oh:" + o.id, body, o.gcalId); n++; }
+    save(); toast(`Sent ${n} office-hour slot${n === 1 ? "" : "s"} to Google Calendar${c.officeHours.some(o => !o.to) ? " (repeating until you set an end date, or for ~4 months)" : ""}.`); }
+  catch (e) { toast(e.message, "error"); }
+}
+async function pushGradDeadline() {
+  if (!(await needGoogle())) return; const g = curGrad(); if (!g.deadline) return toast("Add the application deadline first.", "error");
+  try { g.gcalId = await gcalUpsert("gd:" + g.id, {summary: `${g.name} application due`, description: `${g.program}\n${g.website || ""}\nAdded by FOCUS`, ...dateBody(g.deadline, ""), reminders: {useDefault: false, overrides: [{method: "popup", minutes: 20160}, {method: "popup", minutes: 10080}, {method: "popup", minutes: 1440 * 2}]}, colorId: "6"}, g.gcalId);
+    save(); toast("Deadline added to Google Calendar with reminders 2 weeks, 1 week and 2 days before."); rerender(); }
+  catch (e) { toast(e.message, "error"); }
+}
+const gPushBtn = (act, label) => `<button class="btn sm" data-act="${act}">${ic("google", "sm")}${label}</button>`;
+
+/* =====================================================================
+   Reminders (notifications while FOCUS is open or installed)
+   ===================================================================== */
+function dueSoon(maxDays) {
+  const today = startOfDay(new Date()), md = maxDays ?? Math.max(1, ...(S.settings.remindDays || [7]));
+  const src = new Set(S.settings.remindSources || ["due", "grad", "manual"]);
+  return eventsBetween(today, addDays(today, md + 1)).filter(e => src.has(e.source))
+    .map(e => ({...e, days: Math.round((startOfDay(e.start) - today) / 864e5)})).filter(e => e.days >= 0 && e.days <= md);
+}
+async function notify(title, body, tag) {
+  try {
+    if (navigator.serviceWorker?.controller) { const reg = await navigator.serviceWorker.ready; return reg.showNotification(title, {body, tag, icon: "icon-192.png", badge: "icon-192.png"}); }
+    new Notification(title, {body, tag});
+  } catch (e) { console.warn(e); }
+}
+function checkReminders() {
+  if (!S.settings.notify || typeof Notification === "undefined" || Notification.permission !== "granted") return;
+  const days = new Set(S.settings.remindDays || []); let changed = false;
+  for (const e of dueSoon()) {
+    if (!days.has(e.days)) continue; const key = e.id + "|" + e.days + "|" + ymd(e.start);
+    if (S.notified[key]) continue; S.notified[key] = Date.now(); changed = true;
+    notify(e.days === 0 ? `Today: ${e.title}` : `${e.title} in ${e.days} day${e.days > 1 ? "s" : ""}`, `${fmtDate(e.start, {weekday: "long", month: "short", day: "numeric"})}${e.allDay ? "" : " at " + fmtTime(e.start)}${e.location ? " · " + e.location : ""}`, key);
+  }
+  const cutoff = Date.now() - 60 * 864e5; for (const [k, t] of Object.entries(S.notified)) if (t < cutoff) { delete S.notified[k]; changed = true; }
+  if (changed) save({silent: true});
+}
+
+/* =====================================================================
+   Syllabus scanner: finds instructor, email, office hours and dated items
+   ===================================================================== */
+async function fileLines(rec) {
+  const blob = rec.blob || rec, name = rec.name || "", type = rec.type || blob.type || guessType(name);
+  if (/pdf/.test(type) || /\.pdf$/i.test(name)) return (await pdfLines(new Uint8Array(await blob.arrayBuffer()))).map(l => l.text.replace(/\t/g, "   "));
+  if (/text/.test(type) || /\.(txt|md|csv)$/i.test(name)) return (await blob.text()).split(/\r?\n/);
+  throw new Error("Scanning works with PDF or text syllabi. For Word files, save as PDF first.");
+}
+const DAY_WORDS = [["Sun", 0, "(?:day)?s?"], ["Mon", 1, "(?:day)?s?"], ["Tue", 2, "(?:s(?:day)?)?s?"], ["Tu", 2, ""], ["Wed", 3, "(?:nesday)?s?"], ["Thu", 4, "(?:r(?:s(?:day)?)?)?s?"], ["Th", 4, ""], ["Fri", 5, "(?:day)?s?"], ["Sat", 6, "(?:urday)?s?"]];
+const DAY_RE_SRC = DAY_WORDS.map(([w, , tail]) => `[${w[0]}${w[0].toLowerCase()}]${w.slice(1)}${tail}`).join("|") + "|(?:M|T|W|R|F|Th|Tu){2,5}|[MTWRF]";
+const TIME_RNG = "(\\d{1,2})(?::(\\d{2}))?\\s*([ap]\\.?m\\.?|noon)?\\s*(?:-|–|—|to|until)\\s*(\\d{1,2})(?::(\\d{2}))?\\s*([ap]\\.?m\\.?|noon)?";
+function parseDays(str) {
+  const out = new Set(); str = str.replace(/\band\b|&|,|\//g, " ");
+  const rng = new RegExp(`(${DAY_RE_SRC})\\s*(?:-|–|through|thru)\\s*(${DAY_RE_SRC})`).exec(str);
+  const one = t => { t = t.trim(); if (!t) return [];
+    for (const [w, i] of DAY_WORDS) if (new RegExp(`^${w}`, "i").test(t) && t.length > 2) return [i];
+    const res = []; let k = t; while (k.length) { if (/^Th/i.test(k)) { res.push(4); k = k.slice(2); } else if (/^Tu/i.test(k)) { res.push(2); k = k.slice(2); } else { const m = {M: 1, T: 2, W: 3, R: 4, F: 5, S: 6, U: 0}[k[0].toUpperCase()]; if (m === undefined) return res; res.push(m); k = k.slice(1); } } return res; };
+  if (rng) { const a = one(rng[1])[0], b = one(rng[2])[0]; if (a != null && b != null) for (let d = a; ; d = (d + 1) % 7) { out.add(d); if (d === b) break; } }
+  else str.split(/\s+/).forEach(t => one(t).forEach(d => out.add(d)));
+  return [...out].sort();
+}
+function to24(h, m, ap, otherAp, isStart, otherH) {
+  h = +h; m = +(m || 0); ap = (ap || "").toLowerCase().replace(/\./g, "");
+  if (ap === "noon") return "12:00";
+  if (!ap && otherAp) { otherAp = otherAp.toLowerCase().replace(/\./g, ""); ap = isStart ? (otherAp === "pm" && h <= +otherH && h !== 12 ? "pm" : otherAp === "pm" && h > +otherH ? "am" : otherAp) : otherAp; }
+  if (!ap) ap = h >= 8 && h <= 11 ? "am" : "pm";
+  if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0;
+  return `${pad(h)}:${pad(m)}`;
+}
+const MONTHS = {jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11};
+const DATE_TXT = /\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?/i;
+const DATE_NUM = /\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/;
+const KEYWORDS = /\b(exam|midterm|final|quiz|test|project|due|deadline|presentation|report|homework|hw|assignment|paper|lab report|proposal|essay|problem set|drop|withdraw)\b/i;
+function termYear(semName, month) {
+  const y = +(/(\d{4})/.exec(semName || "") || [])[1] || new Date().getFullYear();
+  if (/spring/i.test(semName) && month >= 7) return y - 1; if (/fall/i.test(semName) && month <= 1) return y + 1; return y;
+}
+function extractSyllabus(lines, semName) {
+  const text = lines.join("\n"), out = {instructor: "", email: "", room: "", officeHours: [], dates: []};
+  const em = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/.exec(text); if (em) out.email = em[0].replace(/\.$/, "");
+  const ins = /(?:[Ii]nstructor|[Pp]rofessor|[Ll]ecturer|[Tt]aught by|[Ff]aculty)\s*(?:[Nn]ame)?\s*[:\-–]\s*((?:Dr\.|Prof\.|Professor)\s*)?([A-Z][A-Za-z'’.-]+(?: [A-Z]\.(?= ))?(?: (?!Email|E-mail|Office|Phone|Room|Hours)[A-Z][A-Za-z'’-]+){0,2})/.exec(text);
+  if (ins) out.instructor = ((ins[1] || "").trim() + " " + ins[2]).trim();
+  const cls = /(?:class|lecture|meeting)s?\s*(?:location|room|place|time)?\s*[:\-–]\s*([^\n;]{3,50})/i.exec(text); if (cls && /\d/.test(cls[1])) out.room = cls[1].trim().replace(/[.,]$/, "");
+  // office hours: look at the line that mentions them plus the following few lines
+  const pat = new RegExp(`((?:${DAY_RE_SRC})(?:\\s*(?:,|&|and|\\/|-|–|through)?\\s*(?:${DAY_RE_SRC}))*)\\s*[,:]?\\s*(?:from\\s*)?${TIME_RNG}`, "g");
+  lines.forEach((ln, i) => {
+    if (!/office\s*hours?|student\s*hours|drop-?in hours/i.test(ln)) return;
+    const ctx = lines.slice(i, i + 4).join("  ");
+    let m; pat.lastIndex = 0;
+    while ((m = pat.exec(ctx))) {
+      const days = parseDays(m[1]); if (!days.length) continue;
+      const start = to24(m[2], m[3], m[4], m[7], true, m[5]), end = to24(m[5], m[6], m[7], m[4], false, m[2]);
+      const after = ctx.slice(m.index + m[0].length, m.index + m[0].length + 50).split(new RegExp(`\\b(?:${DAY_RE_SRC})\\b\\s*\\d`))[0];
+      const LOCP = /\b(?:[Rr]oom|[Rr]m\.?|[Bb]ldg\.?)\s*[:#]?\s*[A-Z0-9][\w-]{0,8}(?:\s\d{1,4}[A-Z]?)?|\b[A-Z]{2,6}\s?\d{2,4}[A-Z]?\b|\b[A-Z][a-z]+ (?:Hall|Building|Center)(?:\s\d{1,4})?|\b(?:[Zz]oom|[Tt]eams|[Oo]nline)\b/;
+      const virt = /\b(zoom|teams|online|virtual)\b/i.exec(ctx.slice(Math.max(0, m.index - 25), m.index));
+      const loc = virt ? virt[1][0].toUpperCase() + virt[1].slice(1).toLowerCase() : (LOCP.exec(after) || LOCP.exec(ctx.slice(m.index)) || LOCP.exec(ctx) || [])[0] || "";
+      const key = days.join() + start;
+      if (!out.officeHours.some(o => o.days.join() + o.start === key)) out.officeHours.push({days, start, end, location: loc.trim().replace(/[.,;]$/, ""), who: out.instructor});
+    }
+  });
+  // dated items
+  for (const ln of lines) {
+    if (!KEYWORDS.test(ln)) continue;
+    let mo, d, y, raw;
+    const a = DATE_TXT.exec(ln), b = !a && DATE_NUM.exec(ln);
+    if (a) { mo = MONTHS[a[1].slice(0, 3).toLowerCase()]; d = +a[2]; y = a[3] ? +a[3] : termYear(semName, mo); raw = a[0]; }
+    else if (b && +b[1] <= 12 && +b[2] <= 31) { mo = +b[1] - 1; d = +b[2]; y = b[3] ? (+b[3] < 100 ? 2000 + +b[3] : +b[3]) : termYear(semName, mo); raw = b[0]; }
+    else continue;
+    const dt = new Date(y, mo, d); if (dt.getMonth() !== mo) continue;
+    const tm = /\b(\d{1,2})(?::(\d{2}))\s*([ap]\.?m\.?)\b|\b(\d{1,2})\s*([ap]\.?m\.?)\b/i.exec(ln.replace(raw, ""));
+    const time = tm ? to24(tm[1] || tm[4], tm[2], tm[3] || tm[5]) : "";
+    let label = ln.replace(raw, " ").replace(/\b(Mon|Tue|Tues|Wed|Thu|Thur|Thurs|Fri|Sat|Sun)[a-z]*\.?,?/gi, " ").replace(/\b\d{1,2}(:\d{2})?\s*[ap]\.?m\.?/gi, " ")
+      .replace(/\bweek\s*\d+\b/gi, " ").replace(/[|•\t]+/g, " ").replace(/\(([^)]*)\)?/g, (m, x) => " · " + x.trim()).replace(/\s*-\s*$/, "")
+      .replace(/(\s*[,;:–—-])+\s*(?=·|$)/g, " ").replace(/\s{2,}/g, " ").replace(/^[\s:,\-–—·]+|[\s:,\-–—·]+$/g, "").replace(/\s+(by|at|on|@)$/i, "").trim();
+    const kw = KEYWORDS.exec(label); if (label.length > 60 && kw) label = label.slice(Math.max(0, kw.index - 20), kw.index + 40).trim();
+    if (!label) label = (kw || ["Due"])[0];
+    const key = ymd(dt) + label.toLowerCase();
+    if (!out.dates.some(x => x.date + x.label.toLowerCase() === key)) out.dates.push({label: label[0].toUpperCase() + label.slice(1), date: ymd(dt), time});
+  }
+  out.dates.sort((a, b) => a.date.localeCompare(b.date));
+  return out;
+}
+async function scanSyllabus() {
+  const [s, c] = findCourse(drawerState.sid, drawerState.cid);
+  const rec = await Cloud.getFile(c.syllabus.fileId); if (!rec) return toast("The syllabus file isn't on this device.", "error");
+  toast("Scanning syllabus…");
+  let found; try { found = extractSyllabus(await fileLines(rec), s.name); } catch (e) { return toast(e.message || "Couldn't read that file.", "error"); }
+  scanState = {found, sid: s.id, cid: c.id};
+  const n = found.officeHours.length + found.dates.length + (found.instructor ? 1 : 0) + (found.email ? 1 : 0);
+  if (!n) return modal("Nothing found", `<p>FOCUS couldn't find office hours or dated items in this syllabus. Scanned PDFs (photos of pages) can't be read; add them by hand in the Office hours and Dates tabs.</p>`, `<button class="btn primary" data-act="backToCourse">OK</button>`);
+  const row = (k, i, html) => `<label class="row" style="gap:10px;padding:8px 0;border-top:1px solid var(--line);flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" checked data-scan="${k}" data-i="${i}" style="margin-top:3px"><div style="flex:1">${html}</div></label>`;
+  modal(`Found in the ${esc(c.code)} syllabus`, `<p class="small muted" style="margin-bottom:10px">Untick anything that's wrong. You can edit everything afterward.</p>
+    ${found.instructor || found.email ? `<div class="day-h">Instructor</div>${found.instructor ? row("instructor", 0, esc(found.instructor)) : ""}${found.email ? row("email", 0, esc(found.email)) : ""}${found.room ? row("room", 0, "Class: " + esc(found.room)) : ""}` : ""}
+    ${found.officeHours.length ? `<div class="day-h">Office hours</div>${found.officeHours.map((o, i) => row("oh", i, `<b>${o.days.map(d => DOW[d]).join(", ")}</b> ${hmLabel(o.start)} – ${hmLabel(o.end)}${o.location ? ` · ${esc(o.location)}` : ""}`)).join("")}` : ""}
+    ${found.dates.length ? `<div class="day-h">Exams & due dates</div>${found.dates.map((d, i) => row("kd", i, `<b>${esc(d.label)}</b><br><span class="small muted">${fmtDate(parseYmd(d.date), {weekday: "short", month: "short", day: "numeric", year: "numeric"})}${d.time ? " · " + hmLabel(d.time) : ""}</span>`)).join("")}` : ""}`,
+    `<button class="btn" data-act="backToCourse">Cancel</button><button class="btn primary" data-act="scanApply">${ic("check")}Add selected</button>`);
+}
+let scanState = null;
+function applyScan() {
+  const {found, sid, cid} = scanState; const [, c] = findCourse(sid, cid);
+  const on = (k, i) => $(`[data-scan="${k}"][data-i="${i}"]`)?.checked;
+  if (found.instructor && on("instructor", 0)) c.instructor = found.instructor;
+  if (found.email && on("email", 0)) c.email = found.email;
+  if (found.room && on("room", 0)) c.room = found.room;
+  let n = 0;
+  found.officeHours.forEach((o, i) => { if (on("oh", i)) { c.officeHours.push({id: uid(), from: "", to: "", ...o}); n++; } });
+  found.dates.forEach((d, i) => { if (on("kd", i) && !c.keyDates.some(k => k.date === d.date && k.label === d.label)) { c.keyDates.push({id: uid(), ...d}); n++; } });
+  c.keyDates.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+  save(); toast(`Added ${n} item${n === 1 ? "" : "s"} from the syllabus.`); openCourse(sid, cid, found.dates.length ? "dates" : "hours"); rerender();
+}
+
+/* =====================================================================
+   NAV + ROUTER
+   ===================================================================== */
+const NAV = [
+  {id: "home", label: "Home", icon: "home"},
+  {id: "academics", label: "Academics", icon: "book", subs: [["plan", "Plan & GPA"], ["courses", "Courses & Syllabi"], ["notes", "Notes"]]},
+  {id: "calendar", label: "Calendar", icon: "calendar", subs: [["month", "Month"], ["agenda", "Agenda"], ["google", "Google Calendar"]]},
+  {id: "career", label: "Career", icon: "briefcase", subs: [["resume", "Resume"], ["grad", "Grad Schools"], ["research", "Research Log"]]},
+  {id: "tools", label: "Tools", icon: "grid", subs: [["age", "Age Calculator"]]},
+  {id: "settings", label: "Settings", icon: "sliders", subs: [["appearance", "Appearance"], ["sync", "Google & Sync"], ["reminders", "Reminders & App"], ["profile", "Profile"], ["data", "Data & Backup"]]}
+];
+let openGroups = new Set(LS.get("focus.navOpen", ["academics", "calendar", "career"]));
+function route() {
+  const [, main = "home", sub] = (location.hash || "#/home").split("/");
+  const n = NAV.find(x => x.id === main) || NAV[0];
+  return {main: n.id, sub: n.subs ? (n.subs.find(s => s[0] === sub) || n.subs[0])[0] : null, nav: n};
+}
+function go(main, sub) { location.hash = sub ? `#/${main}/${sub}` : `#/${main}`; }
+function renderSide() {
+  const r = route();
+  $("#side").innerHTML = `
+    <div class="brand"><div class="logo">${ic("cap")}</div><div>FOCUS<small>${esc(S.profile.school)}</small></div></div>
+    <nav class="nav">${NAV.map(n => n.subs ? `
+      <div class="nav-group ${openGroups.has(n.id) || r.main === n.id ? "open" : ""}">
+        <button class="nav-item ${r.main === n.id ? "active" : ""}" data-act="navGroup" data-id="${n.id}">${ic(n.icon)}<span>${n.label}</span>${ic("chev", "sm chev")}</button>
+        <div class="subnav">${n.subs.map(s => `<button class="sub-item ${r.main === n.id && r.sub === s[0] ? "active" : ""}" data-act="nav" data-main="${n.id}" data-sub="${s[0]}">${s[1]}</button>`).join("")}</div>
+      </div>` : `<button class="nav-item ${r.main === n.id ? "active" : ""}" data-act="nav" data-main="${n.id}">${ic(n.icon)}<span>${n.label}</span></button>`).join("")}
+    </nav>
+    <div class="side-foot">${esc(S.profile.fullName || S.profile.name)}<br>${esc(S.profile.major)}</div>`;
+}
+function render() {
+  const r = route();
+  renderSide();
+  $(".menu-btn").innerHTML = ic("menu");
+  const subLabel = r.nav.subs ? r.nav.subs.find(s => s[0] === r.sub)[1] : "";
+  $("#crumb").textContent = r.nav.subs ? r.nav.label : "";
+  $("#pageTitle").textContent = subLabel || (r.main === "home" ? "Home" : r.nav.label);
+  const V = VIEWS[r.main + (r.sub ? "/" + r.sub : "")] || VIEWS.home;
+  const sc = window.scrollY;
+  $("#view").innerHTML = V();
+  AFTER[r.main + (r.sub ? "/" + r.sub : "")]?.();
+  if (render._same) window.scrollTo(0, sc);
+  document.body.classList.remove("nav-open");
+}
+window.addEventListener("hashchange", () => { render._same = false; render(); window.scrollTo(0, 0); });
+function focusKey(el) { if (!el || el === document.body || !el.dataset) return null; return ["act", "id", "f", "k", "oh", "kd", "sem", "d"].map(k => el.dataset[k] || "").join("|") + "|" + el.tagName; }
+/* Deferred so focus can move to the next field before the page redraws; focus is then restored. */
+const rerender = () => { clearTimeout(rerender.t); rerender.t = setTimeout(() => {
+  const ae = document.activeElement, key = focusKey(ae), inLayer = ae && $("#layer").contains(ae);
+  render._same = true; render(); render._same = false;
+  if (key && !inLayer) { const el = $$("#view [data-act]").find(x => focusKey(x) === key); if (el) { el.focus(); if (el.select && el.type === "text" && el === ae) {} } }
+}, 0); };
+
+/* =====================================================================
+   VIEWS
+   ===================================================================== */
+const VIEWS = {}, AFTER = {};
+function agendaRows(list, emptyMsg) {
+  if (!list.length) return `<div class="empty">${emptyMsg}</div>`;
+  return list.map(e => `<div class="agenda-item" data-act="openEvent" data-id="${esc(e.id)}">
+    <div class="t">${e.allDay ? "All day" : fmtTime(e.start)}</div><div class="bar" style="background:${SRC[e.source].color}"></div>
+    <div><div class="ti">${esc(e.title)}</div><div class="meta">${[e.allDay ? "" : fmtTime(e.start) + " – " + fmtTime(e.end), e.location, SRC[e.source].label].filter(Boolean).map(esc).join(" · ")}</div></div></div>`).join("");
+}
+VIEWS.home = () => {
+  const now = new Date(), T = totals(), cur = currentSemester();
+  const hr = now.getHours(), greet = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
+  const today = eventsOnDay(now);
+  const week = eventsBetween(addDays(startOfDay(now), 1), addDays(startOfDay(now), 8));
+  const byDay = {}; week.forEach(e => { const k = ymd(e.start); (byDay[k] ||= []).push(e); });
+  const grad = S.profile.gradDate ? Math.ceil((parseYmd(S.profile.gradDate) - startOfDay(now)) / 864e5) : null;
+  const curG = gpaOf(cur.courses), curCr = cur.courses.reduce((a, c) => a + +c.credits, 0);
+  const pct = T.total ? Math.round(T.earned / T.total * 100) : 0;
+  const nextDl = S.gradSchools.filter(g => g.deadline && parseYmd(g.deadline) >= startOfDay(now)).sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
+  const res = S.resumes.find(x => x.current), curP = gpaOf(cur.courses, true);
+  const soon = dueSoon(7).filter(e => e.source !== "office").slice(0, 4), W = planWarnings(), nW = [...W.values()].reduce((a, l) => a + l.length, 0);
+  const ms = S.research.milestones.find(m => !m.done);
+  const heads = [
+    ...soon.map(e => `<div class="row small" data-act="openEvent" data-id="${esc(e.id)}" style="cursor:pointer"><span class="chip ${e.days <= 1 ? "bad" : e.days <= 3 ? "warn" : ""}">${e.days === 0 ? "Today" : e.days === 1 ? "Tomorrow" : "In " + e.days + " days"}</span><b>${esc(e.title)}</b></div>`),
+    Cloud.configured && Cloud.canRun && !Cloud.signedIn ? `<div class="row small"><span class="chip">${ic("google", "sm")}</span>Google isn't connected on this device.<button class="btn sm" data-act="gSignIn">Connect</button></div>` : "",
+    nW ? `<div class="row small"><span class="chip warn">${nW}</span>plan warning${nW > 1 ? "s" : ""} (prerequisites or credit limits)<button class="btn sm ghost" data-act="nav" data-main="academics" data-sub="plan">Review</button></div>` : "",
+    ms ? `<div class="row small"><span class="chip acc">${ic("cap", "sm")}</span>Next research milestone (${esc(ms.term)}): ${esc(ms.text)}</div>` : ""
+  ].filter(Boolean);
+  return `
+  <div class="hero"><div><h2>${greet}, ${esc(S.profile.name)}</h2><p>${fmtDate(now, {weekday: "long", month: "long", day: "numeric", year: "numeric"})} · ${esc(cur.name)}</p></div>
+    <div class="row"><button class="btn" data-act="newEvent">${ic("plus")}Add event</button><button class="btn primary" data-act="nav" data-main="academics" data-sub="plan">${ic("chart")}Open GPA</button></div></div>
+  <div class="grid g4">
+    <div class="card stat"><div class="k">Cumulative GPA</div><div class="v">${fmtGpa(T.gpa)}</div><div class="s">${T.credits} GPA credits</div></div>
+    <div class="card stat"><div class="k">${esc(cur.name)}</div><div class="v">${curG.gpa != null ? fmtGpa(curG.gpa) : curP.gpa != null ? `<span title="Projected from expected grades">~${fmtGpa(curP.gpa)}</span>` : "—"}</div><div class="s">${cur.courses.length} courses · ${curCr} credits${curG.gpa == null && curP.gpa != null ? " · projected" : ""}</div></div>
+    <div class="card stat"><div class="k">Degree progress</div><div class="v">${pct}%</div><div class="progress" style="margin-top:8px"><i style="width:${pct}%"></i></div><div class="s" style="margin-top:6px">${T.earned} of ${T.total} planned credits</div></div>
+    <div class="card stat"><div class="k">Graduation</div><div class="v">${grad != null ? grad : "—"}<span class="small muted" style="font-weight:600"> days</span></div><div class="s">${S.profile.gradDate ? fmtDate(parseYmd(S.profile.gradDate), {month: "long", day: "numeric", year: "numeric"}) : "Set in Settings → Profile"}</div></div>
+  </div>
+  ${heads.length ? `<div class="card" style="margin-top:16px"><div class="card-h"><h2>Heads up</h2></div><div class="stack" style="gap:10px">${heads.join("")}</div></div>` : ""}
+  <div class="grid g2" style="margin-top:16px;grid-template-columns:1.25fr 1fr">
+    <div class="stack" style="gap:16px">
+      <div class="card"><div class="card-h"><h2>Today</h2><span class="chip">${today.length} item${today.length === 1 ? "" : "s"}</span><div class="sp"></div><button class="btn sm ghost" data-act="nav" data-main="calendar" data-sub="month">Calendar ${ic("chev", "sm")}</button></div>
+        ${agendaRows(today, S.ics.events.length || S.gcal?.events?.length ? "Nothing on today." : "Nothing on today. Connect Google Calendar to see your classes and plans here.")}</div>
+      <div class="card"><div class="card-h"><h2>Next 7 days</h2><div class="sp"></div><button class="btn sm ghost" data-act="nav" data-main="calendar" data-sub="agenda">Agenda ${ic("chev", "sm")}</button></div>
+        ${Object.keys(byDay).length ? Object.entries(byDay).slice(0, 7).map(([k, l]) => `<div class="day-h">${fmtDate(parseYmd(k), {weekday: "long", month: "short", day: "numeric"})}</div>${agendaRows(l.slice(0, 6))}${l.length > 6 ? `<div class="more">+${l.length - 6} more</div>` : ""}`).join("") : `<div class="empty">No upcoming events this week.</div>`}</div>
+    </div>
+    <div class="stack" style="gap:16px">
+      <div class="card"><div class="card-h"><h2>${esc(cur.name)} courses</h2><div class="sp"></div><button class="btn sm ghost" data-act="nav" data-main="academics" data-sub="courses">All ${ic("chev", "sm")}</button></div>
+        ${cur.courses.length ? cur.courses.map(c => `<div class="agenda-item" style="grid-template-columns:1fr auto" data-act="openCourse" data-sem="${cur.id}" data-id="${c.id}">
+          <div><div class="ti">${esc(c.code)} <span class="muted" style="font-weight:500">${esc(c.title)}</span></div>
+          <div class="meta">${c.credits} cr · ${c.syllabus ? "Syllabus ✓" : "No syllabus"} · ${c.officeHours.length ? c.officeHours.length + " office-hour slot" + (c.officeHours.length > 1 ? "s" : "") : "No office hours"}</div></div>
+          <div>${c.grade ? `<span class="chip acc">${esc(c.grade)}</span>` : `<span class="chip">In progress</span>`}</div></div>`).join("") : `<div class="empty">No courses this semester.</div>`}</div>
+      <div class="card"><div class="card-h"><h2>Grad school tracker</h2><div class="sp"></div><button class="btn sm ghost" data-act="nav" data-main="career" data-sub="grad">Open ${ic("chev", "sm")}</button></div>
+        ${S.gradSchools.slice(0, 6).map(g => { const d = g.requirements.filter(x => x.done).length, n = g.requirements.length; return `<div class="row" style="padding:6px 0"><span class="rank">${g.rank || "–"}</span><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">${esc(g.name)}</div><div class="progress" style="height:6px;margin-top:4px"><i style="width:${n ? d / n * 100 : 0}%"></i></div></div><span class="tiny muted">${d}/${n}</span></div>`; }).join("")}
+        <div class="small muted" style="margin-top:8px">${nextDl ? `Next deadline: <b>${esc(nextDl.name)}</b>, ${fmtDate(parseYmd(nextDl.deadline), {month: "short", day: "numeric", year: "numeric"})}` : "Add application deadlines to see them here and on your calendar."}</div></div>
+      <div class="card"><div class="card-h"><h2>Resume</h2><div class="sp"></div><button class="btn sm ghost" data-act="nav" data-main="career" data-sub="resume">Open ${ic("chev", "sm")}</button></div>
+        ${res ? `<div class="small">${esc(res.label)} resume · ${esc(res.current.fileName)}<br><span class="muted">Updated ${fmtDate(new Date(res.current.uploaded), {month: "short", day: "numeric", year: "numeric"})}</span></div>` : `<div class="empty">Upload your resume and FOCUS will pull out your key points.</div>`}</div>
+    </div>
+  </div>`;
+};
+
+/* ---------- Academics: Plan & GPA ---------- */
+VIEWS["academics/plan"] = () => {
+  const T = totals(); const target = S.ui.targetGpa || ""; const W = planWarnings();
+  let need = null; if (target && T.ungradedApplied) need = (target * (T.credits + T.ungradedApplied) - T.quality) / T.ungradedApplied;
+  const nWarn = [...W.values()].reduce((a, l) => a + l.length, 0);
+  const stat = (k, v, sub) => `<div class="card"><div class="k small muted" style="font-weight:650;letter-spacing:.04em">${k}</div><div class="gpa-big" style="margin:6px 0 8px;font-size:38px">${v}</div><div class="small muted">${sub}</div></div>`;
+  return `
+  <div class="grid g4">
+    ${stat("CUMULATIVE GPA", fmtGpa(T.gpa), `${T.credits} credits counted${T.sup.size ? ` · ${T.sup.size} repeated attempt${T.sup.size > 1 ? "s" : ""} replaced` : ""}`)}
+    ${stat("PROJECTED GPA", fmtGpa(T.projected), `Real grades plus the <b>Expected</b> grades you've entered (${T.projCredits} credits)`)}
+    ${stat("ENGINEERING STANDING", fmtGpa(T.es), `${T.esCredits} credits from freshman-year courses, transfer included (ES box in course details). Your advisor has the official number.`)}
+    <div class="card"><div class="k small muted" style="font-weight:650;letter-spacing:.04em">CREDITS</div><div class="gpa-big" style="margin:6px 0 8px;font-size:38px">${T.earned}</div>
+      <div class="progress"><i style="width:${T.total ? T.earned / T.total * 100 : 0}%"></i></div><div class="small muted" style="margin-top:6px">earned · ${T.remaining} planned · ${T.total} in this plan</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><div class="card-h"><h2>Goal check</h2></div>
+      <div class="row" style="flex-wrap:nowrap;align-items:flex-end"><label class="f" style="width:170px"><span>Target cumulative GPA</span><input class="input" type="number" step="0.01" min="0" max="4" placeholder="3.50" value="${esc(target)}" data-act="targetGpa"></label>
+      <div class="small" style="flex:1;padding-bottom:6px">${need == null ? `<span class="muted">Enter a target to see the average you need on your ungraded courses.</span>` : need > 4 ? `<span style="color:var(--bad)">You'd need ${need.toFixed(2)} on the remaining ${T.ungradedApplied} credits, which is above 4.0.</span>` : need <= 0 ? `<span style="color:var(--ok)">You're already there.</span>` : `Average <b>${need.toFixed(2)}</b> on the remaining ${T.ungradedApplied} credits to reach ${(+target).toFixed(2)}.`}</div></div></div>
+    <div class="card"><div class="card-h"><h2>Plan check</h2><div class="sp"></div>${nWarn ? `<span class="chip warn">${nWarn} to review</span>` : `<span class="chip ok">${ic("check", "sm")}All good</span>`}</div>
+      <div class="small muted">Checks prerequisites, C-or-better courses and your credit limits (${S.settings.maxCredits} per regular term, ${S.settings.summerMax} in summer). Warnings appear under each semester. Edit the rules at the bottom of this page.</div></div>
+  </div>
+  <div class="row" style="margin:22px 0 12px"><h2 style="font-size:17px">Semesters</h2><div style="flex:1"></div>
+    <span class="small muted">Grade = what you got. Expected = what you think you'll get (only used for Projected GPA).</span>
+    <button class="btn primary" data-act="addSem">${ic("plus")}Add semester</button></div>
+  ${S.semesters.map((x, i) => semCard(x, i, W, T.sup)).join("")}
+  <div class="card" style="margin-top:18px"><div class="card-h">${ic("sliders")}<h2>Plan rules</h2></div>
+    <div class="grid g2" style="grid-template-columns:1fr 1.4fr">
+      <div class="stack">
+        <label class="row small" style="gap:8px;flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" data-act="setFlagR" data-k="autoRepeat" ${S.settings.autoRepeat ? "checked" : ""} style="margin-top:2px"><span><b>Repeat option</b>: when you retake a course, the newest letter grade replaces the older attempt in your GPA and credits. <span class="muted">UK limits how many repeat options you can use, so confirm with your advisor.</span></span></label>
+        <div class="grid g2"><label class="f"><span>Max credits, fall/spring</span><input class="input" type="number" min="0" max="25" value="${esc(S.settings.maxCredits)}" data-act="setNum" data-k="maxCredits"></label>
+        <label class="f"><span>Max credits, summer</span><input class="input" type="number" min="0" max="15" value="${esc(S.settings.summerMax)}" data-act="setNum" data-k="summerMax"></label></div>
+        <div class="tiny muted">Your major map deliberately allows 17 in Spring 2027 because those courses are locked together, so that warning is expected.</div>
+      </div>
+      <label class="f"><span>Prerequisites (from your major map; edit freely)</span><textarea class="input" rows="9" style="font-family:var(--mono);font-size:12.5px" data-act="prereqs">${esc(S.prereqs)}</textarea>
+        <span class="tiny" style="font-weight:500">One course per line. <span class="kbd">EE 421G: EE 223, MA 214</span> means those must come in an earlier term. Add <span class="kbd">; concurrent PHY 232</span> for same-term-OK. <span class="kbd">MIN C:</span> lists courses that need a C or better.</span></label>
+    </div></div>`;
+};
+function semCard(s, si, W = new Map(), sup = supersededIds(false)) {
+  const g = gpaOf(s.courses, false, sup), cr = s.courses.reduce((a, c) => a + +c.credits, 0), warns = W.get(s.id) || [];
+  const proj = s.status !== "completed" && s.courses.some(c => !c.grade && c.expected) ? gpaOf(s.courses, true) : null;
+  return `<section class="sem" data-sem="${s.id}">
+    <div class="sem-h">
+      <input class="name" value="${esc(s.name)}" data-act="semName" data-sem="${s.id}" aria-label="Semester name">
+      <select class="cell" style="width:auto" data-act="semStatus" data-sem="${s.id}">${["planned", "in-progress", "completed"].map(x => `<option value="${x}" ${s.status === x ? "selected" : ""}>${x === "in-progress" ? "In progress" : x[0].toUpperCase() + x.slice(1)}</option>`).join("")}</select>
+      <div class="sp"></div>
+      ${warns.length ? `<span class="chip warn" title="${esc(warns.join("\n"))}">${warns.length} warning${warns.length > 1 ? "s" : ""}</span>` : ""}
+      <span class="small muted">${cr} credits</span>${proj ? `<span class="chip" title="Using expected grades">Projected ${fmtGpa(proj.gpa)}</span>` : ""}<span class="chip ${g.gpa == null ? "" : "acc"}">Term GPA <b class="sem-gpa">&nbsp;${fmtGpa(g.gpa)}</b></span>
+      <button class="icon-btn" title="Move up" data-act="semMove" data-sem="${s.id}" data-d="-1" ${si === 0 ? "disabled" : ""} style="transform:rotate(-90deg)">${ic("chev", "sm")}</button>
+      <button class="icon-btn" title="Delete semester" data-act="semDel" data-sem="${s.id}">${ic("trash", "sm")}</button>
+    </div>
+    <div class="tw"><table class="t"><thead><tr><th style="text-align:center">Apply</th><th>Course</th><th class="hide-sm">Title</th><th>Credits</th><th>Grade</th><th>Expected</th><th></th></tr></thead><tbody>
+    ${s.courses.map(c => { const rep = sup.get(c.id); const R = `data-sem="${s.id}" data-id="${c.id}"`; return `<tr${rep ? ' style="opacity:.62"' : ""}>
+      <td class="c-apply"><input type="checkbox" ${c.apply ? "checked" : ""} data-act="cField" data-f="apply" ${R} title="Count in GPA"></td>
+      <td style="width:190px;white-space:nowrap"><input class="cell code" style="width:${c.transfer || rep ? 112 : 150}px" value="${esc(c.code)}" placeholder="Code" data-act="cField" data-f="code" ${R}>${c.transfer ? `<span class="chip" style="margin-left:4px" title="Transfer credit (not in UK GPA unless you tick Apply)">T</span>` : ""}${rep ? `<span class="chip" style="margin-left:4px" title="Replaced by the repeat grade">Repeated</span>` : ""}</td>
+      <td class="hide-sm"><input class="cell" value="${esc(c.title)}" placeholder="Title" data-act="cField" data-f="title" ${R}></td>
+      <td class="c-cr"><select class="cell" data-act="cField" data-f="credits" ${R}>${[0, 1, 2, 3, 4, 5, 6].map(n => `<option ${+c.credits === n ? "selected" : ""}>${n}</option>`).join("")}</select></td>
+      <td class="c-gr"><select class="cell" data-act="cField" data-f="grade" ${R}>${GRADES.map(gr => `<option value="${gr}" ${c.grade === gr ? "selected" : ""}>${gr || "—"}</option>`).join("")}</select></td>
+      <td class="c-gr">${c.grade ? `<span class="muted small" style="padding-left:8px">—</span>` : `<select class="cell" style="color:var(--muted)" data-act="cField" data-f="expected" ${R}>${EXPECTED.map(gr => `<option value="${gr}" ${c.expected === gr ? "selected" : ""}>${gr || "—"}</option>`).join("")}</select>`}</td>
+      <td class="c-act">
+        <button class="icon-btn" title="${c.syllabus ? "Syllabus uploaded" : "Syllabus, office hours, dates"}" data-act="openCourse" ${R}>${ic(c.syllabus ? "file" : "clock", "sm")}</button>
+        <button class="btn sm ghost" data-act="openCourse" ${R}>Details</button>
+        <button class="icon-btn" title="Remove course" data-act="cDel" ${R}>${ic("x", "sm")}</button></td></tr>`; }).join("") || `<tr><td colspan="7"><div class="empty" style="margin:8px 0">No courses yet.</div></td></tr>`}
+    </tbody></table></div>
+    ${warns.length ? `<div style="padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap">${warns.map(w => `<span class="chip warn">${esc(w)}</span>`).join("")}</div>` : ""}
+    <div class="sem-foot"><button class="btn sm" data-act="cAdd" data-sem="${s.id}">${ic("plus", "sm")}Add course</button>
+      ${s.courses.some(c => c.notes) ? `<span class="tiny muted">${s.courses.filter(c => c.notes).map(c => `<b>${esc(c.code)}:</b> ${esc(c.notes)}`).join(" · ")}</span>` : ""}</div>
+  </section>`;
+}
+
+/* ---------- Academics: Courses ---------- */
+VIEWS["academics/courses"] = () => {
+  const sel = S.semesters.find(s => s.id === S.ui.courseSem) || currentSemester();
+  return `<div class="row" style="margin-bottom:14px"><label class="f" style="width:260px"><span>Semester</span>
+    <select class="input" data-act="courseSem">${S.semesters.map(s => `<option value="${s.id}" ${s.id === sel.id ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></label>
+    <div style="flex:1"></div><button class="btn" data-act="cAdd" data-sem="${sel.id}">${ic("plus")}Add course</button></div>
+  ${sel.courses.length ? `<div class="grid g3">${sel.courses.map(c => `
+    <div class="card" style="cursor:pointer" data-act="openCourse" data-sem="${sel.id}" data-id="${c.id}">
+      <div class="row" style="justify-content:space-between"><div style="font-weight:700;font-size:16px">${esc(c.code)}</div>${c.grade ? `<span class="chip acc">${esc(c.grade)}</span>` : `<span class="chip">${c.credits} cr</span>`}</div>
+      <div class="muted small" style="margin:2px 0 12px">${esc(c.title) || "&nbsp;"}</div>
+      <div class="stack small" style="gap:6px">
+        <div class="row" style="gap:7px">${ic("file", "sm")}${c.syllabus ? `<span>${esc(c.syllabus.name)}</span>` : `<span class="muted">No syllabus uploaded</span>`}</div>
+        <div class="row" style="gap:7px">${ic("clock", "sm")}${c.officeHours.length ? c.officeHours.map(o => `${(o.days || []).map(d => DOW[d]).join("/")} ${hmLabel(o.start)}`).map(esc).join(", ") : `<span class="muted">No office hours</span>`}</div>
+        <div class="row" style="gap:7px">${ic("calendar", "sm")}${c.keyDates.length ? `${c.keyDates.length} key date${c.keyDates.length > 1 ? "s" : ""}` : `<span class="muted">No exams or due dates</span>`}</div>
+      </div></div>`).join("")}</div>` : `<div class="empty">No courses in ${esc(sel.name)} yet.</div>`}`;
+};
+
+/* ---------- Academics: Notes ---------- */
+VIEWS["academics/notes"] = () => `
+  <div class="card"><div class="grid g2" style="grid-template-columns:1fr 2fr">
+    <label class="f"><span>Title</span><input class="input" id="noteTitle" placeholder="e.g. Advisor questions"></label>
+    <label class="f"><span>Course (optional)</span><input class="input" id="noteCourse" placeholder="e.g. MA 114"></label></div>
+    <label class="f" style="margin-top:10px"><span>Note</span><textarea class="input" id="noteBody" rows="4" placeholder="Write anything…"></textarea></label>
+    <div class="row" style="margin-top:10px;justify-content:flex-end"><button class="btn primary" data-act="noteAdd">${ic("plus")}Add note</button></div></div>
+  <div class="grid g2" style="margin-top:16px">${S.notes.length ? S.notes.map(n => `<div class="note"><div class="row" style="justify-content:space-between"><b>${esc(n.title)}</b><button class="icon-btn" data-act="noteDel" data-id="${n.id}">${ic("trash", "sm")}</button></div>
+    <div class="tiny muted">${esc(n.course ? n.course + " · " : "")}${fmtDate(new Date(n.at), {month: "short", day: "numeric", year: "numeric"})}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(n.body)}</div></div>`).join("") : `<div class="empty" style="grid-column:1/-1">No notes yet.</div>`}</div>`;
+
+/* ---------- Calendar ---------- */
+let calCursor = startOfDay(new Date()); calCursor.setDate(1);
+function legend() { return `<div class="legend">${Object.values(SRC).map(s => `<span><i class="dot" style="background:${s.color}"></i>${s.label}</span>`).join("")}</div>`; }
+function evChip(e) { const c = SRC[e.source].color; return `<div class="ev" style="color:${c};background:color-mix(in srgb,${c} 12%,transparent)" title="${esc(e.title)}" data-act="openEvent" data-id="${esc(e.id)}"><span style="color:var(--text)">${e.allDay ? "" : `<b style="font-weight:700">${fmtTime(e.start).replace(":00", "").replace(" ", "").toLowerCase()}</b> `}${esc(e.title)}</span></div>`; }
+function syncBadge() {
+  if (Cloud.signedIn && S.gcal?.lastSync) return `<span class="chip ok">${ic("google", "sm")}${S.gcal.events.length} events · ${fmtTime(new Date(S.gcal.lastSync))}</span><button class="icon-btn" title="Refresh from Google" data-act="gcalRefresh">${ic("refresh", "sm")}</button>`;
+  if (S.gcal?.events?.length && Cloud.configured) return `<span class="chip">${ic("google", "sm")}${S.gcal.events.length} events (saved)</span><button class="btn sm" data-act="gSignIn">Reconnect</button>`;
+  if (!S.ics.events.length) return `<button class="btn sm" data-act="nav" data-main="calendar" data-sub="google">${ic("google", "sm")}Connect Google Calendar</button>`;
+  return `<span class="chip ok">${ic("check", "sm")}${esc(S.ics.label || "Google")} · ${S.ics.events.length} events · ${S.ics.lastSync ? "synced " + fmtDate(new Date(S.ics.lastSync), {month: "short", day: "numeric"}) + " " + fmtTime(new Date(S.ics.lastSync)) : ""}</span>${icsUrl() ? `<button class="icon-btn" title="Sync now" data-act="syncNow">${ic("refresh", "sm")}</button>` : ""}`;
+}
+function googleCard() {
+  const ok = Cloud.signedIn;
+  return `<div class="card" style="border-color:color-mix(in srgb,var(--accent) 35%,var(--line))"><div class="card-h">${ic("google")}<h2>Connect Google (recommended)</h2><div class="sp"></div>${ok ? `<span class="chip ok">${ic("check", "sm")}${esc(Cloud.email || "Connected")}</span>` : ""}</div>
+    <p class="small muted" style="margin-bottom:12px">One sign-in does three things: pulls all your Google Calendar events into FOCUS, lets you send exam dates, office hours and deadlines <i>to</i> Google Calendar (so your phone reminds you), and backs up FOCUS to your Google Drive so it's the same on every device.</p>
+    ${!Cloud.configured ? `<div class="notice warn">One-time setup needed: create a free Google Client ID and paste it in <a href="#/settings/sync">Settings → Google & Sync</a>. SETUP.md walks you through it in about 10 minutes.</div>`
+      : !Cloud.canRun ? `<div class="notice warn">You're opening FOCUS as a file. Google sign-in only works from a web address. Host it (free, GitHub Pages; see SETUP.md) and open that link instead.</div>`
+      : ok ? `<div class="row"><button class="btn primary" data-act="gcalRefresh">${ic("refresh")}Refresh calendar</button><button class="btn" data-act="nav" data-main="settings" data-sub="sync">Choose calendars</button><button class="btn ghost danger" data-act="gSignOut">Disconnect</button></div>${Cloud.busy ? `<div class="small muted" style="margin-top:8px">Syncing…</div>` : ""}`
+      : `<button class="btn primary" data-act="gSignIn">${ic("google")}Connect Google</button>`}</div>`;
+}
+VIEWS["calendar/google"] = () => `
+  ${googleCard()}
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><div class="card-h">${ic("eye")}<h2>Show Google Calendar (live view)</h2></div>
+      <p class="small muted" style="margin-bottom:12px">Shows your real Google Calendar inside FOCUS (Calendar → Month → <b>Google view</b>) when you're signed in to Google in this browser. No setup needed.</p>
+      <label class="f"><span>Calendar ID or embed link</span><input class="input" id="gcalId" value="${esc(S.settings.calendarId)}" placeholder="you@gmail.com"></label>
+      <div class="tiny muted" style="margin-top:6px">Your main calendar's ID is your Gmail address. Other calendars: Google Calendar → ⚙ Settings → the calendar → <b>Integrate calendar</b> → Calendar ID.</div>
+      <div class="row" style="margin-top:12px"><button class="btn" data-act="saveGcalId">${ic("check")}Save & show</button></div></div>
+    <div class="card"><div class="card-h">${ic("link")}<h2>No sign-in? Use your iCal link or a file</h2></div>
+      <label class="f"><span>Secret address in iCal format</span><div class="row" style="flex-wrap:nowrap"><input class="input" id="icsUrl" type="password" autocomplete="off" value="${esc(icsUrl())}" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics"><button class="icon-btn" title="Show / hide" data-act="toggleSecret">${ic("eye", "sm")}</button></div></label>
+      <div class="tiny muted" style="margin-top:6px">Saved only on this device. It's never synced, exported or backed up, because anyone with it can read your calendar.</div>
+      <label class="f" style="margin-top:10px"><span>Your relay address (optional, see SETUP.md)</span><input class="input" value="${esc(S.settings.relayUrl)}" placeholder="https://focus-relay.yourname.workers.dev" data-act="setText" data-k="relayUrl"></label>
+      <div class="stack" style="margin-top:10px;gap:8px">
+        <label class="row small" style="gap:8px;flex-wrap:nowrap"><input type="checkbox" data-act="setFlag" data-k="autoSync" ${S.settings.autoSync ? "checked" : ""}>Re-sync automatically when I open FOCUS</label>
+        <label class="row small" style="gap:8px;align-items:flex-start;flex-wrap:nowrap"><input type="checkbox" style="margin-top:2px" data-act="setFlag" data-k="useProxy" ${S.settings.useProxy ? "checked" : ""}><span>Fall back to a public relay <span class="muted">(your calendar passes through a free outside service; your own relay or Connect Google is better)</span></span></label>
+      </div>
+      <div class="row" style="margin-top:12px"><button class="btn primary" data-act="saveIcsUrl">${ic("refresh")}Save & sync</button>${icsUrl() || S.ics.events.length ? `<button class="btn ghost danger" data-act="clearIcs">Disconnect</button>` : ""}</div>
+      ${S.ics.error ? `<div class="notice bad" style="margin-top:12px">${esc(S.ics.error)}</div>` : ""}
+      <div class="divider"></div>
+      <div class="drop" data-act="pickIcs" data-drop="ics">${ic("upload")}<div>Or drop an .ics file here</div><div class="tiny">Google Calendar → ⚙ Settings → Import & export → <b>Export</b> → unzip</div></div>
+      ${S.ics.events.length ? `<div class="notice ok" style="margin-top:12px">${ic("check", "sm")} <b>${esc(S.ics.label)}</b>: ${S.ics.events.length} events (${S.ics.source === "url" ? "iCal link" : "file"}), synced ${fmtDate(new Date(S.ics.lastSync), {month: "short", day: "numeric"})} at ${fmtTime(new Date(S.ics.lastSync))}.${S.gcal?.events?.length ? " Not shown while Google sign-in is providing your events." : ""}</div>` : ""}
+    </div>
+  </div>`;
+
+/* ---------- Career: Resume ---------- */
+VIEWS["career/resume"] = () => {
+  const sel = S.resumes.find(r => r.id === S.ui.resumeSel) || S.resumes.find(r => r.current) || S.resumes[0];
+  const p = sel?.current?.parsed;
+  return `<div class="row" style="margin-bottom:14px"><div class="slot-tabs seg">${S.resumes.map(r => `<button class="${r.id === sel.id ? "active" : ""}" data-act="resSel" data-id="${r.id}">${esc(r.label)}${r.current ? " ✓" : ""}</button>`).join("")}</div>
+    <button class="btn sm ghost" data-act="resAddSlot">${ic("plus", "sm")}Add resume version</button><div style="flex:1"></div>
+    ${sel.current ? `<button class="btn ${S.ui.resumeEdit ? "primary" : ""}" data-act="resEditToggle">${ic(S.ui.resumeEdit ? "check" : "edit")}${S.ui.resumeEdit ? "Done editing" : "Edit"}</button><button class="btn" data-act="resView" data-id="${sel.id}">${ic("eye")}View original</button>` : ""}
+    <button class="btn primary" data-act="resUpload" data-id="${sel.id}">${ic("upload")}${sel.current ? "Upload new version" : "Upload resume"}</button></div>
+  ${!p ? `<div class="card"><div class="drop" data-act="resUpload" data-id="${sel.id}" data-drop="resume" style="padding:48px">${ic("upload")}<div style="font-weight:650;margin-top:6px">Upload your ${esc(sel.label)} resume (PDF)</div><div class="small">FOCUS reads it and publishes your key points here. Upload a new one any time and this page updates.</div></div></div>` : `
+  <div class="grid" style="grid-template-columns:1.6fr 1fr">
+    ${S.ui.resumeEdit ? resumeEditor(p) : `<div class="card">
+      <div class="res-head"><div class="avatar">${esc((p.name || S.profile.name).split(/\s+/).filter(w => /^[A-Za-z]/.test(w)).map(w => w[0]).slice(0, 2).join(""))}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:22px;font-weight:750">${esc(p.name || S.profile.fullName)}</div><div class="row" style="gap:6px;margin-top:6px">${p.contacts.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div></div></div>
+      <div class="divider"></div>
+      ${p.sections.filter(s => !/skill/i.test(s.title)).map(s => `<div class="res-sec"><h4>${esc(s.title)}</h4>${s.entries.map(e => `<div class="entry">
+        <div class="eh"><span class="org">${esc(e.org)}</span><span class="small muted">${esc(e.location)}</span></div>
+        ${e.role || e.date ? `<div class="eh small"><span>${esc(e.role)}</span><span class="muted">${esc(e.date)}</span></div>` : ""}
+        ${e.details.map(d => `<div class="small muted">${esc(d)}</div>`).join("")}
+        ${e.bullets.length ? `<ul>${e.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}</div>`).join("")}</div>`).join("")}
+    </div>`}
+    <div class="stack" style="gap:16px">
+      <div class="card"><div class="card-h">${ic("spark")}<h2>Key points</h2></div>${keyPoints(p)}</div>
+      ${p.skills.length ? `<div class="card"><div class="card-h"><h2>Skills</h2></div><div class="row" style="gap:6px">${p.skills.map(s => `<span class="chip acc">${esc(s)}</span>`).join("")}</div></div>` : ""}
+      <div class="card"><div class="card-h"><h2>Versions</h2></div>${[sel.current, ...sel.history].filter(Boolean).map((h, i) => `<div class="row small" style="padding:5px 0;justify-content:space-between"><span>${ic("file", "sm")} ${esc(h.fileName)}</span><span class="muted">${i === 0 ? "current · " : ""}${fmtDate(new Date(h.uploaded), {month: "short", day: "numeric", year: "numeric"})}</span></div>`).join("")}
+        <div class="row" style="margin-top:10px"><button class="btn sm ghost" data-act="resRename" data-id="${sel.id}">${ic("edit", "sm")}Rename</button><button class="btn sm ghost danger" data-act="resDelSlot" data-id="${sel.id}">${ic("trash", "sm")}Remove</button></div></div>
+    </div></div>`}`;
+};
+function resumeEditor(p) {
+  const I = (path, v, ph = "", st = "") => `<input class="input" value="${esc(v)}" placeholder="${ph}" data-act="rEdit" data-path="${path}" style="${st}">`;
+  return `<div class="card"><div class="notice" style="margin-bottom:14px">Fix anything FOCUS read wrong. Changes save as you type. Uploading a new version replaces this with a fresh read.</div>
+    <div class="grid g2">${I("name", p.name, "Name")}${I("contacts", p.contacts.join(" • "), "Contacts, separated by •")}</div>
+    ${p.sections.map((sec, si) => `<div class="res-sec" style="margin-top:18px"><div class="row" style="flex-wrap:nowrap">${I(`s.${si}.title`, sec.title, "Section", "font-weight:700;max-width:260px")}<div style="flex:1"></div><button class="btn sm ghost" data-act="rEntryAdd" data-si="${si}">${ic("plus", "sm")}Entry</button><button class="icon-btn" title="Delete section" data-act="rSecDel" data-si="${si}">${ic("trash", "sm")}</button></div>
+      ${sec.entries.map((e, ei) => `<div class="entry" style="margin-top:8px"><div class="grid g2" style="gap:8px">${I(`s.${si}.${ei}.org`, e.org, "Organization / school")}${I(`s.${si}.${ei}.location`, e.location, "Location")}${I(`s.${si}.${ei}.role`, e.role, "Role / degree")}${I(`s.${si}.${ei}.date`, e.date, "Dates")}</div>
+        <textarea class="input" style="margin-top:8px" rows="${Math.max(2, e.bullets.length + 1)}" placeholder="One bullet per line" data-act="rEdit" data-path="s.${si}.${ei}.bullets">${esc(e.bullets.join("\n"))}</textarea>
+        <div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn sm ghost danger" data-act="rEntryDel" data-si="${si}" data-ei="${ei}">${ic("trash", "sm")}Remove entry</button></div></div>`).join("")}</div>`).join("")}
+    <div class="row" style="margin-top:14px"><button class="btn" data-act="rSecAdd">${ic("plus")}Add section</button></div>
+    <label class="f" style="margin-top:14px"><span>Skills (comma separated)</span><textarea class="input" rows="2" data-act="rEdit" data-path="skills">${esc(p.skills.join(", "))}</textarea></label></div>`;
+}
+function keyPoints(p) {
+  const get = re => p.sections.find(s => re.test(s.title));
+  const edu = get(/educat/i), exp = get(/experience|employment|work|military|service/i), aff = get(/affiliat|activit|leadership|involve|project|research/i);
+  const pts = [];
+  if (edu?.entries[0]) { const e = edu.entries[0]; pts.push(`<b>${esc(e.org)}</b>${e.role ? " · " + esc(e.role.replace(/^Major:\s*/i, "")) : ""}${e.date ? ` <span class="muted">(${esc(e.date)})</span>` : ""}${e.details.length ? "<br><span class='muted small'>" + e.details.map(esc).join("; ") + "</span>" : ""}`); }
+  for (const e of (exp?.entries || []).slice(0, 4)) pts.push(`<b>${esc(e.org.split(",")[0])}</b>${e.org.includes(",") ? " · " + esc(e.org.split(",").slice(1).join(",").trim()) : e.role ? " · " + esc(e.role) : ""}${e.date ? ` <span class="muted">(${esc(e.date)})</span>` : ""}${e.bullets[0] ? `<br><span class="small">${esc(e.bullets[0])}</span>` : ""}`);
+  for (const e of (aff?.entries || []).slice(0, 4)) pts.push(`<b>${esc(e.org)}</b>${e.role ? " · " + esc(e.role) : ""}${e.date ? ` <span class="muted">(${esc(e.date)})</span>` : ""}`);
+  return pts.length ? `<div class="stack" style="gap:10px">${pts.map(x => `<div class="small" style="padding-left:10px;border-left:3px solid var(--accent)">${x}</div>`).join("")}</div>` : `<div class="empty">Couldn't find clear sections. Try a text-based PDF (not a scan).</div>`;
+}
+
+/* ---------- Career: Grad schools ---------- */
+const GSTAT = ["Researching", "Contacting faculty", "Preparing", "Submitted", "Interview", "Admitted", "Declined", "Not applying"];
+VIEWS["career/grad"] = () => {
+  const list = [...S.gradSchools].sort((a, b) => (a.rank || 99) - (b.rank || 99));
+  const g = S.gradSchools.find(x => x.id === S.ui.gradSel) || list[0];
+  const F = (k, label, type = "text", ph = "") => `<label class="f"><span>${label}</span><input class="input" type="${type}" value="${esc(g[k])}" placeholder="${esc(ph)}" data-act="gField" data-k="${k}"></label>`;
+  return `<div class="grid" style="grid-template-columns:330px 1fr;align-items:start">
+    <div><div class="row" style="margin-bottom:10px"><button class="btn primary sm" data-act="gAdd">${ic("plus", "sm")}Add school</button><button class="btn sm" data-act="gImport">${ic("upload", "sm")}Import list</button><button class="btn sm ghost" data-act="gExport">${ic("download", "sm")}Export</button></div>
+      ${list.map(x => { const d = x.requirements.filter(r => r.done).length, n = x.requirements.length; return `<div class="school ${g && x.id === g.id ? "active" : ""}" data-act="gSel" data-id="${x.id}"><span class="rank">${x.rank || "–"}</span><div style="flex:1;min-width:0"><div style="font-weight:650">${esc(x.name)}</div><div class="tiny muted">${esc(x.program)} · ${esc(x.status)}${x.deadline ? " · due " + fmtDate(parseYmd(x.deadline), {month: "short", day: "numeric"}) : ""}</div><div class="progress" style="height:5px;margin-top:6px"><i style="width:${n ? d / n * 100 : 0}%"></i></div></div></div>`; }).join("") || `<div class="empty">No schools yet.</div>`}
+      <div class="tiny muted" style="margin-top:10px">Import accepts JSON (from Export) or CSV with columns like name, program, location, deadline, fee, gre, minGpa, website.</div></div>
+    ${g ? `<div class="card">
+      <div class="row" style="margin-bottom:14px"><input class="name" style="font-size:20px;font-weight:750;border:1px solid transparent;background:none;border-radius:8px;padding:4px 6px;flex:1;min-width:200px" value="${esc(g.name)}" data-act="gField" data-k="name">
+        <select class="input" style="width:auto" data-act="gField" data-k="status">${GSTAT.map(s => `<option ${g.status === s ? "selected" : ""}>${s}</option>`).join("")}</select>
+        <button class="icon-btn" title="Delete school" data-act="gDel" data-id="${g.id}">${ic("trash")}</button></div>
+      <div class="grid g3">${F("program", "Program")}${F("location", "Location")}${F("rank", "My rank", "number")}
+        ${F("deadline", "Application deadline", "date")}${F("fee", "Application fee", "text", "e.g. $75 / waiver")}${F("minGpa", "GPA expectation", "text", "e.g. 3.5+ recommended")}
+        ${F("gre", "GRE", "text", "Required / optional / not accepted")}${F("english", "English test", "text", "TOEFL/IELTS, if required")}${F("website", "Program website", "url", "https://")}</div>
+      <div class="row" style="margin-top:8px">${g.website ? `<a class="btn sm ghost" href="${esc(g.website)}" target="_blank" rel="noopener">${ic("link", "sm")}Open program page ↗</a>` : ""}${g.deadline ? gPushBtn("gradPush", g.gcalId ? "Update deadline in Google Calendar" : "Add deadline to Google Calendar") : ""}</div>
+      <div class="grid g2" style="margin-top:12px">
+        <label class="f"><span>School / program information</span><textarea class="input" rows="5" data-act="gField" data-k="info" placeholder="Research areas, funding, size, why it fits…">${esc(g.info)}</textarea></label>
+        <label class="f"><span>Faculty I'd like to work with</span><textarea class="input" rows="5" data-act="gField" data-k="faculty" placeholder="Name · lab · research area · contacted?">${esc(g.faculty)}</textarea></label></div>
+      <div class="divider"></div>
+      <div class="card-h" style="margin-bottom:6px"><h2>Admission requirements</h2><span class="chip">${g.requirements.filter(r => r.done).length}/${g.requirements.length} done</span><div class="sp"></div><button class="btn sm" data-act="reqAdd">${ic("plus", "sm")}Add requirement</button></div>
+      ${g.requirements.map(r => `<div class="req ${r.done ? "done" : ""}"><input type="checkbox" ${r.done ? "checked" : ""} data-act="reqDone" data-id="${r.id}"><input class="cell" value="${esc(r.text)}" data-act="reqText" data-id="${r.id}"><button class="icon-btn" data-act="reqDel" data-id="${r.id}">${ic("x", "sm")}</button></div>`).join("")}
+      <div class="divider"></div>
+      <label class="f"><span>Notes</span><textarea class="input" rows="3" data-act="gField" data-k="notes" placeholder="Anything else…">${esc(g.notes)}</textarea></label>
+      <div class="card-h" style="margin:14px 0 6px"><h2>Files</h2><div class="sp"></div><button class="btn sm" data-act="gFile">${ic("upload", "sm")}Attach file</button></div>
+      ${g.files.length ? g.files.map(f => `<div class="row small" style="padding:5px 0"><span style="flex:1">${ic("file", "sm")} ${esc(f.name)}</span><button class="btn sm ghost" data-act="viewFile" data-fid="${f.fileId}" data-name="${esc(f.name)}">${ic("eye", "sm")}View</button><button class="icon-btn" data-act="gFileDel" data-fid="${f.fileId}">${ic("x", "sm")}</button></div>`).join("") : `<div class="tiny muted">Attach brochures, requirement pages, or your SOP draft for this school.</div>`}
+    </div>` : ""}</div>`;
+};
+
+/* ---------- Career: Research log ---------- */
+VIEWS["career/research"] = () => {
+  const R = S.research, terms = [...new Set([...S.semesters.map(s => s.name).filter(n => /\d{4}/.test(n)), ...R.milestones.map(m => m.term)])];
+  const done = R.milestones.filter(m => m.done).length;
+  const next = R.milestones.find(m => !m.done);
+  const F = (e, k, l, ph = "", rows = 0) => rows ? `<label class="f"><span>${l}</span><textarea class="input" rows="${rows}" placeholder="${ph}" data-act="rlField" data-id="${e.id}" data-k="${k}">${esc(e[k])}</textarea></label>`
+    : `<label class="f"><span>${l}</span><input class="input" value="${esc(e[k])}" placeholder="${ph}" data-act="rlField" data-id="${e.id}" data-k="${k}"></label>`;
+  return `<div class="grid" style="grid-template-columns:1fr 1.5fr;align-items:start">
+    <div class="card"><div class="card-h">${ic("cap")}<h2>Road to a PhD</h2><div class="sp"></div><span class="chip ${done === R.milestones.length ? "ok" : "acc"}">${done}/${R.milestones.length}</span></div>
+      <div class="small muted" style="margin-bottom:8px">Milestones from your major map. Tick them off, edit them, or add your own.</div>
+      ${R.milestones.map(m => `<div class="req ${m.done ? "done" : ""}" style="align-items:flex-start"><input type="checkbox" ${m.done ? "checked" : ""} data-act="msDone" data-id="${m.id}" style="margin-top:6px">
+        <div style="flex:1"><input class="cell tiny" style="font-weight:700;color:var(--accent);padding:2px 7px" value="${esc(m.term)}" data-act="msField" data-id="${m.id}" data-k="term"><textarea class="cell" rows="2" style="resize:none;line-height:1.4" data-act="msField" data-id="${m.id}" data-k="text">${esc(m.text)}</textarea></div>
+        <button class="icon-btn" data-act="msDel" data-id="${m.id}">${ic("x", "sm")}</button></div>`).join("")}
+      <button class="btn sm" style="margin-top:8px" data-act="msAdd">${ic("plus", "sm")}Add milestone</button></div>
+    <div><div class="row" style="margin-bottom:12px"><h2 style="font-size:17px">Research log</h2><div style="flex:1"></div><button class="btn" data-act="rlExport">${ic("download")}Export for SOP</button><button class="btn primary" data-act="rlAdd">${ic("plus")}New entry</button></div>
+      <div class="notice" style="margin-bottom:12px">Your map's advice: one lab for three or more semesters, a named mentor, and a one-page log each term (question, method, result, next step). This becomes the backbone of your statement of purpose.${next ? `<br><b>Next milestone:</b> ${esc(next.term)}: ${esc(next.text)}` : ""}</div>
+      ${R.entries.length ? R.entries.map(e => `<div class="card" style="margin-bottom:12px">
+        <div class="row" style="margin-bottom:10px"><select class="input" style="width:auto" data-act="rlField" data-id="${e.id}" data-k="term">${terms.map(t => `<option ${e.term === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+          <span class="tiny muted">Updated ${fmtDate(new Date(e.updated), {month: "short", day: "numeric", year: "numeric"})}</span><div style="flex:1"></div><button class="icon-btn" data-act="rlDel" data-id="${e.id}">${ic("trash", "sm")}</button></div>
+        <div class="grid g3">${F(e, "lab", "Lab / group", "e.g. Power electronics lab")}${F(e, "mentor", "Mentor", "Prof. …")}${F(e, "hours", "Hours / week", "4–6")}</div>
+        <div class="grid g2" style="margin-top:10px">${F(e, "question", "Question I worked on", "What were you trying to find out?", 3)}${F(e, "method", "Method", "How: tools, experiments, code, data", 3)}
+          ${F(e, "result", "Result", "What happened? Numbers if you have them", 3)}${F(e, "next", "Next step", "What comes next?", 3)}</div>
+        <div style="margin-top:10px">${F(e, "outputs", "Outputs", "Poster, report, code repo, presentation, paper draft…")}</div></div>`).join("") : `<div class="empty">No entries yet. Start one per term, even if this term is just lab visits and reading.</div>`}
+    </div></div>`;
+};
+
+/* ---------- Tools: Age ---------- */
+VIEWS["tools/age"] = () => {
+  const b = S.profile.birthdate; let out = "";
+  if (b) {
+    const bd = parseYmd(b), now = startOfDay(new Date());
+    if (bd > now) out = `<div class="notice warn">That date is in the future.</div>`;
+    else {
+      let y = now.getFullYear() - bd.getFullYear(), m = now.getMonth() - bd.getMonth(), d = now.getDate() - bd.getDate();
+      if (d < 0) { m--; d += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); } if (m < 0) { y--; m += 12; }
+      let next = new Date(now.getFullYear(), bd.getMonth(), bd.getDate()); if (next < now) next = new Date(now.getFullYear() + 1, bd.getMonth(), bd.getDate());
+      const toNext = Math.round((next - now) / 864e5), days = Math.round((now - bd) / 864e5);
+      out = `<div class="grid g3" style="margin-top:16px">
+        <div class="card"><div class="small muted">Age</div><div class="age-num">${y}</div><div class="muted">${m} months, ${d} days</div></div>
+        <div class="card"><div class="small muted">Next birthday</div><div class="age-num">${toNext === 0 ? "🎉" : toNext}</div><div class="muted">${toNext === 0 ? "Happy birthday!" : `days · ${fmtDate(next, {weekday: "long", month: "long", day: "numeric"})} (turning ${y + 1})`}</div></div>
+        <div class="card"><div class="small muted">Days alive</div><div class="age-num">${days.toLocaleString()}</div><div class="muted">Born on a ${fmtDate(bd, {weekday: "long"})}</div></div></div>`;
+    }
+  }
+  return `<div class="card" style="max-width:520px"><div class="card-h">${ic("cake")}<h2>Age calculator</h2></div>
+    <label class="f"><span>Date of birth</span><input class="input" type="date" value="${esc(b)}" data-act="birth"></label>
+    <div class="tiny muted" style="margin-top:6px">Saved only in this browser.</div></div>${out}`;
+};
+
+/* ---------- Settings ---------- */
+const ACCENTS = ["#2563eb", "#0891b2", "#059669", "#7c3aed", "#db2777", "#ea580c", "#0f172a"];
+VIEWS["settings/appearance"] = () => `
+  <div class="card"><div class="card-h"><h2>Theme</h2></div>
+    <div class="grid g3">${[["light", "Light", "#f3f5fa", "#ffffff"], ["dark", "Dark (night mode)", "#0a0f1c", "#111a2c"], ["system", "Match my device", "linear-gradient(90deg,#f3f5fa 50%,#0a0f1c 50%)", ""]].map(([v, l, bg, p]) => `
+      <button class="theme-opt ${S.settings.theme === v ? "active" : ""}" data-act="theme" data-v="${v}"><div class="theme-prev" style="background:${bg}">${p ? `<div style="margin:12px;height:36px;border-radius:7px;background:${p};border:1px solid rgba(127,127,127,.2)"></div>` : ""}</div><b>${l}</b></button>`).join("")}</div></div>
+  <div class="card"><div class="card-h"><h2>Accent color</h2></div><div class="swatches">${ACCENTS.map(c => `<button class="sw ${S.settings.accent === c ? "active" : ""}" style="background:${c}" data-act="accent" data-v="${c}" aria-label="${c}"></button>`).join("")}</div></div>`;
+VIEWS["settings/sync"] = () => `
+  ${googleCard()}
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><div class="card-h"><h2>Google Client ID</h2></div>
+      <label class="f"><span>OAuth Client ID</span><input class="input" value="${esc(S.settings.clientId)}" placeholder="1234567890-abc….apps.googleusercontent.com" data-act="setText" data-k="clientId"></label>
+      <div class="small muted" style="margin-top:8px">Free, one-time setup in Google Cloud (about 10 minutes). Step-by-step instructions are in <b>SETUP.md</b>. This page's address must be added there as an “Authorized JavaScript origin”: <span class="kbd">${esc(location.origin === "null" ? "your GitHub Pages address" : location.origin)}</span></div></div>
+    <div class="card"><div class="card-h"><h2>What syncs</h2></div>
+      <label class="row small" style="gap:8px;flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" data-act="setFlag" data-k="cloudSync" ${S.settings.cloudSync ? "checked" : ""} style="margin-top:2px"><span><b>Back up and sync FOCUS through Google Drive.</b> Your plan, grades, notes, grad schools, research log and uploaded files are saved in a hidden FOCUS folder in your Drive (only FOCUS can see it), so every device you sign in on shows the same data.</span></label>
+      <div class="small muted" style="margin-top:10px">${S.syncedAt ? `Last synced ${fmtDate(new Date(S.syncedAt), {month: "short", day: "numeric"})} at ${fmtTime(new Date(S.syncedAt))}.` : "Not synced yet."} Your secret iCal link and Google sign-in stay on each device.</div>
+      ${Cloud.signedIn ? `<div class="row" style="margin-top:10px"><button class="btn sm" data-act="syncPush">${ic("upload", "sm")}Save to Drive now</button><button class="btn sm" data-act="syncPull">${ic("download", "sm")}Load from Drive</button></div>` : ""}</div>
+  </div>
+  ${Cloud.signedIn ? `<div class="card" style="margin-top:16px"><div class="card-h"><h2>Calendars to show in FOCUS</h2><div class="sp"></div><button class="btn sm" data-act="loadCals">${ic("refresh", "sm")}Load my calendars</button></div>
+    <div id="calList" class="stack" style="gap:6px">${(S.ui.calList || []).map(c => `<label class="row small" style="gap:8px"><input type="checkbox" data-act="calPick" data-id="${esc(c.id)}" ${(S.settings.gcalIds || []).includes(c.primary ? "primary" : c.id) ? "checked" : ""} data-primary="${c.primary ? 1 : 0}"><i class="dot" style="background:${esc(c.backgroundColor || "#888")}"></i>${esc(c.summary)}${c.primary ? ' <span class="chip">main</span>' : ""}</label>`).join("") || `<span class="small muted">Showing: ${(S.settings.gcalIds || ["primary"]).map(esc).join(", ")}. Click “Load my calendars” to pick others (e.g. Solar Car, Guard).</span>`}</div></div>` : ""}`;
+VIEWS["settings/reminders"] = () => {
+  const perm = typeof Notification === "undefined" ? "unsupported" : Notification.permission;
+  const soon = dueSoon();
+  return `<div class="grid g2">
+  <div class="card"><div class="card-h">${ic("clock")}<h2>Reminders</h2></div>
+    <label class="row small" style="gap:8px;flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" data-act="notifyToggle" ${S.settings.notify && perm === "granted" ? "checked" : ""} style="margin-top:2px"><span><b>Notify me on this device</b> about exams, due dates, grad deadlines and my events.</span></label>
+    ${perm === "denied" ? `<div class="notice bad" style="margin-top:10px">Notifications are blocked for this site in your browser settings.</div>` : perm === "unsupported" ? `<div class="notice warn" style="margin-top:10px">This browser doesn't support notifications.</div>` : ""}
+    <div class="small" style="font-weight:650;margin:14px 0 6px">Remind me</div>
+    <div class="days">${[[14, "2 weeks"], [7, "1 week"], [3, "3 days"], [2, "2 days"], [1, "1 day"], [0, "Same day"]].map(([d, l]) => `<label><input type="checkbox" data-act="remDay" data-d="${d}" ${S.settings.remindDays.includes(d) ? "checked" : ""}><span style="padding:5px 10px">${l}</span></label>`).join("")}</div>
+    <div class="small" style="font-weight:650;margin:14px 0 6px">For</div>
+    <div class="days">${[["due", "Course dates"], ["grad", "Grad deadlines"], ["manual", "My events"], ["office", "Office hours"]].map(([k, l]) => `<label><input type="checkbox" data-act="remSrc" data-k="${k}" ${S.settings.remindSources.includes(k) ? "checked" : ""}><span style="padding:5px 10px">${l}</span></label>`).join("")}</div>
+    <div class="notice" style="margin-top:14px">These pop up when FOCUS is open, or when you open the installed app. For alerts that <b>always</b> reach your phone, use <b>Send to Google Calendar</b> on a course's Dates tab or a grad school's deadline: Google then reminds you on these same days.</div>
+    ${perm === "granted" ? `<button class="btn sm" style="margin-top:12px" data-act="testNotify">Send a test notification</button>` : ""}</div>
+  <div class="card"><div class="card-h"><h2>Coming up</h2><span class="chip">${soon.length}</span></div>
+    ${soon.length ? soon.map(e => `<div class="row small" style="padding:6px 0;border-top:1px solid var(--line)"><span class="chip ${e.days <= 1 ? "bad" : e.days <= 3 ? "warn" : ""}">${e.days === 0 ? "Today" : e.days === 1 ? "Tomorrow" : e.days + " days"}</span><span style="flex:1">${esc(e.title)}</span></div>`).join("") : `<div class="empty">Nothing in your reminder window.</div>`}
+    <div class="divider"></div>
+    <div class="card-h" style="margin-bottom:6px"><h2>Install FOCUS as an app</h2></div>
+    <div class="small muted">${installHelp()}</div>
+    ${deferredInstall ? `<button class="btn primary sm" style="margin-top:10px" data-act="install">${ic("download", "sm")}Install FOCUS</button>` : ""}</div></div>`;
+};
+function installHelp() {
+  if (matchMedia("(display-mode: standalone)").matches) return "FOCUS is installed and running as an app.";
+  if (!/^https:/.test(location.protocol) && location.hostname !== "localhost") return "Installing needs FOCUS hosted on a web address (https). See SETUP.md, then open that link.";
+  if (/iPhone|iPad/.test(navigator.userAgent)) return "On iPhone: open FOCUS in Safari → Share → <b>Add to Home Screen</b>. Then open it from the home screen to allow notifications.";
+  return "Chrome / Edge: use the install button here, or the install icon in the address bar. On Android: ⋮ menu → <b>Install app</b>.";
+}
+VIEWS["settings/profile"] = () => `
+  <div class="card" style="max-width:720px"><div class="card-h"><h2>Profile</h2></div>
+    <div class="grid g2">${[["name", "Display name"], ["fullName", "Full name"], ["school", "School"], ["major", "Degree / major"], ["advisor", "Advisor"], ["gradDate", "Graduation date", "date"]].map(([k, l, t]) => `
+      <label class="f"><span>${l}</span><input class="input" type="${t || "text"}" value="${esc(S.profile[k])}" data-act="pField" data-k="${k}"></label>`).join("")}</div></div>`;
+VIEWS["settings/data"] = () => `
+  <div class="card" style="max-width:720px"><div class="card-h"><h2>Backup</h2></div>
+    <p class="small muted">Everything is stored in this browser. Export a JSON backup to move FOCUS to another computer or browser. (Uploaded files like syllabi and resumes stay on this device; re-upload them after importing.)</p>
+    <div class="row" style="margin-top:12px"><button class="btn primary" data-act="exportAll">${ic("download")}Export backup (.json)</button><button class="btn" data-act="importAll">${ic("upload")}Import backup</button></div></div>
+  <div class="card" style="max-width:720px"><div class="card-h"><h2>Reset</h2></div>
+    <p class="small muted">Restore the plan from your advising worksheet and major map, clearing your edits, grades, events and uploads.</p>
+    <div class="row" style="margin-top:12px"><button class="btn danger" data-act="resetAll">${ic("trash")}Reset FOCUS</button></div></div>`;
+
+/* =====================================================================
+   MODALS / DRAWER
+   ===================================================================== */
+function closeLayer() { const l = $("#layer"); l.querySelectorAll("iframe[data-blob]").forEach(f => URL.revokeObjectURL(f.dataset.blob)); l.innerHTML = ""; drawerState = null; }
+function modal(title, body, foot = "", wide = false) {
+  $("#layer").innerHTML = `<div class="overlay center" data-act="overlay"><div class="modal ${wide ? "wide" : ""}" role="dialog"><div class="modal-h"><h3>${title}</h3><button class="icon-btn" data-act="close">${ic("x")}</button></div><div class="modal-b">${body}</div>${foot ? `<div class="modal-f">${foot}</div>` : ""}</div></div>`;
+}
+let drawerState = null;
+function findCourse(sid, cid) { const s = S.semesters.find(x => x.id === sid); return s ? [s, s.courses.find(c => c.id === cid)] : [null, null]; }
+function openCourse(sid, cid, tab) {
+  const [s, c] = findCourse(sid, cid); if (!c) return;
+  drawerState = {sid, cid, tab: tab || drawerState?.tab || "overview"};
+  const t = drawerState.tab;
+  const tabBtn = (id, l) => `<button class="tab ${t === id ? "active" : ""}" data-act="dTab" data-t="${id}">${l}</button>`;
+  const CF = (k, l, type = "text", ph = "") => `<label class="f"><span>${l}</span><input class="input" type="${type}" value="${esc(c[k])}" placeholder="${ph}" data-act="dField" data-k="${k}"></label>`;
+  let body = "";
+  if (t === "overview") body = `<div class="grid g2">${CF("code", "Course code")}${CF("title", "Title")}
+      <label class="f"><span>Credits</span><select class="input" data-act="dField" data-k="credits">${[0, 1, 2, 3, 4, 5, 6].map(n => `<option ${+c.credits === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+      <label class="f"><span>Grade</span><select class="input" data-act="dField" data-k="grade">${GRADES.map(g => `<option value="${g}" ${c.grade === g ? "selected" : ""}>${g || "— not yet"}</option>`).join("")}</select></label>
+      <label class="f"><span>Expected grade (for Projected GPA)</span><select class="input" data-act="dField" data-k="expected" ${c.grade ? "disabled" : ""}>${EXPECTED.map(g => `<option value="${g}" ${c.expected === g ? "selected" : ""}>${g || "—"}</option>`).join("")}</select></label>
+      ${CF("room", "Class location")}
+      ${CF("instructor", "Instructor")}${CF("email", "Instructor email", "email")}</div>
+    <div class="row" style="gap:18px;margin-top:12px">
+      <label class="row small" style="gap:8px"><input type="checkbox" data-act="dField" data-k="apply" ${c.apply ? "checked" : ""}>Apply to GPA</label>
+      <label class="row small" style="gap:8px" title="Counts toward your Engineering Standing GPA"><input type="checkbox" data-act="dField" data-k="es" ${c.es ? "checked" : ""}>Engineering Standing course</label>
+      <label class="row small" style="gap:8px"><input type="checkbox" data-act="dField" data-k="transfer" ${c.transfer ? "checked" : ""}>Transfer credit</label>
+      ${c.email ? `<a class="btn sm ghost" href="mailto:${esc(c.email)}">${ic("link", "sm")}Email instructor</a>` : ""}</div>
+    <label class="f" style="margin-top:12px"><span>Notes</span><textarea class="input" rows="4" data-act="dField" data-k="notes">${esc(c.notes)}</textarea></label>`;
+  if (t === "syllabus") body = c.syllabus ? `
+      <div class="row" style="padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)">${ic("file")}<div style="flex:1;min-width:0"><div style="font-weight:650">${esc(c.syllabus.name)}</div><div class="tiny muted">Uploaded ${fmtDate(new Date(c.syllabus.uploaded), {month: "short", day: "numeric", year: "numeric"})} · ${(c.syllabus.size / 1024).toFixed(0)} KB</div></div>
+        <button class="btn sm primary" data-act="viewFile" data-fid="${c.syllabus.fileId}" data-name="${esc(c.syllabus.name)}">${ic("eye", "sm")}Open</button><button class="btn sm" data-act="sylUpload">${ic("upload", "sm")}Replace</button><button class="icon-btn" data-act="sylDel">${ic("trash", "sm")}</button></div>
+      <div class="notice" style="margin-top:12px;display:flex;gap:12px;align-items:center">${ic("spark")}<div style="flex:1"><b>Scan this syllabus</b><br><span class="small muted">FOCUS reads it and suggests the instructor, office hours and exam/due dates. You check them before anything is added.</span></div><button class="btn primary" data-act="sylScan">${ic("spark", "sm")}Scan</button></div>
+      <div class="small muted" style="margin-top:10px">You can always add or fix things by hand in the <a href="#" data-act="dTab" data-t="hours">Office hours</a> and <a href="#" data-act="dTab" data-t="dates">Dates</a> tabs.</div>`
+    : `<div class="drop" data-act="sylUpload" data-drop="syllabus" style="padding:40px">${ic("upload")}<div style="font-weight:650;margin-top:6px">Upload the ${esc(c.code)} syllabus</div><div class="small">PDF, image, Word or text file</div></div>`;
+  if (t === "hours") body = `<p class="small muted" style="margin-bottom:12px">Office hours repeat weekly. They show on your calendar while this semester is <b>In progress</b>, or between the dates you set.</p>
+      ${c.officeHours.map(o => `<div class="oh-row" data-oh="${o.id}">
+        <label class="f"><span>Days</span><div class="days">${DOW.map((d, i) => `<label><input type="checkbox" data-act="ohDay" data-oh="${o.id}" data-d="${i}" ${o.days?.includes(i) ? "checked" : ""}><span>${d[0]}${d[1]}</span></label>`).join("")}</div></label>
+        <label class="f"><span>Start</span><input class="input" type="time" value="${esc(o.start)}" data-act="ohField" data-oh="${o.id}" data-k="start"></label>
+        <label class="f"><span>End</span><input class="input" type="time" value="${esc(o.end)}" data-act="ohField" data-oh="${o.id}" data-k="end"></label>
+        <label class="f"><span>Where</span><input class="input" value="${esc(o.location)}" placeholder="Room / Zoom" data-act="ohField" data-oh="${o.id}" data-k="location"></label>
+        <button class="icon-btn" data-act="ohDel" data-oh="${o.id}" title="Remove">${ic("trash", "sm")}</button>
+        <label class="f"><span>Who</span><input class="input" value="${esc(o.who)}" placeholder="Professor / TA" data-act="ohField" data-oh="${o.id}" data-k="who"></label>
+        <label class="f"><span>From</span><input class="input" type="date" value="${esc(o.from)}" data-act="ohField" data-oh="${o.id}" data-k="from"></label>
+        <label class="f"><span>Until</span><input class="input" type="date" value="${esc(o.to)}" data-act="ohField" data-oh="${o.id}" data-k="to"></label>
+      </div>`).join("") || `<div class="empty">No office hours yet.</div>`}
+      <div class="row" style="margin-top:12px"><button class="btn" data-act="ohAdd">${ic("plus")}Add office hours</button><div style="flex:1"></div>${c.officeHours.length ? gPushBtn("ohPush", "Send to Google Calendar") : ""}</div>`;
+  if (t === "dates") body = `<p class="small muted" style="margin-bottom:12px">Exams, project deadlines, quizzes: anything with a date from the syllabus.</p>
+      ${c.keyDates.map(k => `<div class="row" style="padding:6px 0;flex-wrap:nowrap"><input class="input" value="${esc(k.label)}" placeholder="Exam 1" data-act="kdField" data-kd="${k.id}" data-k="label" style="flex:2"><input class="input" type="date" value="${esc(k.date)}" data-act="kdField" data-kd="${k.id}" data-k="date" style="flex:1.2"><input class="input" type="time" value="${esc(k.time)}" data-act="kdField" data-kd="${k.id}" data-k="time" style="flex:1"><button class="icon-btn" data-act="kdDel" data-kd="${k.id}">${ic("trash", "sm")}</button></div>`).join("") || `<div class="empty">No dates yet.</div>`}
+      <div class="row" style="margin-top:12px"><button class="btn" data-act="kdAdd">${ic("plus")}Add date</button><div style="flex:1"></div>${c.keyDates.some(k => k.date) ? gPushBtn("kdPush", "Send to Google Calendar") : ""}</div>
+      ${c.keyDates.some(k => k.gcalId) ? `<div class="tiny muted" style="margin-top:8px">${ic("check", "sm")} ${c.keyDates.filter(k => k.gcalId).length} date(s) are on your Google Calendar with reminders. Sending again updates them.</div>` : ""}`;
+  $("#layer").innerHTML = `<div class="overlay" data-act="overlay"><div class="drawer" role="dialog">
+    <div class="drawer-h"><div style="flex:1"><div class="tiny muted">${esc(s.name)}</div><h3>${esc(c.code)} <span class="muted" style="font-weight:500">${esc(c.title)}</span></h3></div><button class="icon-btn" data-act="close">${ic("x")}</button></div>
+    <div class="drawer-b"><div class="tabs">${tabBtn("overview", "Overview")}${tabBtn("syllabus", "Syllabus" + (c.syllabus ? " ✓" : ""))}${tabBtn("hours", `Office hours${c.officeHours.length ? " (" + c.officeHours.length + ")" : ""}`)}${tabBtn("dates", `Dates${c.keyDates.length ? " (" + c.keyDates.length + ")" : ""}`)}</div>${body}</div></div></div>`;
+}
+function eventModal(ev = {}, dateStr) {
+  const e = {title: "", date: dateStr || ymd(new Date()), allDay: false, start: "", end: "", category: "academic", location: "", notes: "", ...ev};
+  modal(ev.id ? "Edit event" : "New event", `<div class="stack">
+    <label class="f"><span>Title</span><input class="input" id="evTitle" value="${esc(e.title)}" placeholder="What's happening?"></label>
+    <div class="grid g3"><label class="f"><span>Date</span><input class="input" type="date" id="evDate" value="${esc(e.date)}"></label>
+      <label class="f"><span>Start</span><input class="input" type="time" id="evStart" value="${esc(e.start)}"></label><label class="f"><span>End</span><input class="input" type="time" id="evEnd" value="${esc(e.end)}"></label></div>
+    <label class="row small" style="gap:8px"><input type="checkbox" id="evAll" ${e.allDay ? "checked" : ""}>All day</label>
+    <div class="grid g2"><label class="f"><span>Category</span><select class="input" id="evCat">${["academic", "personal", "solar car", "guard", "work", "other"].map(c => `<option ${e.category === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+      <label class="f"><span>Location</span><input class="input" id="evLoc" value="${esc(e.location)}"></label></div>
+    <label class="f"><span>Notes</span><textarea class="input" id="evNotes" rows="3">${esc(e.notes)}</textarea></label></div>`,
+    `${ev.id ? `<button class="btn danger" data-act="evDel" data-id="${ev.id}" style="margin-right:auto">${ic("trash")}Delete</button>` : ""}<button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="evSave" data-id="${ev.id || ""}">${ic("check")}Save</button>`);
+  setTimeout(() => $("#evTitle")?.focus(), 30);
+}
+function eventDetail(id) {
+  if (!id) return;
+  if (S.events.some(e => e.id === id)) return eventModal(S.events.find(e => e.id === id));
+  const win = eventsBetween(addDays(new Date(), -400), addDays(new Date(), 500)).find(e => e.id === id);
+  if (!win) return;
+  if (win.courseRef) return openCourse(win.courseRef[0], win.courseRef[1], win.source === "office" ? "hours" : "dates");
+  if (win.gradRef) { S.ui.gradSel = win.gradRef; save(); return go("career", "grad"); }
+  modal(esc(win.title), `<div class="stack small">
+    <div class="row">${ic("calendar", "sm")}${fmtDate(win.start, {weekday: "long", month: "long", day: "numeric", year: "numeric"})}</div>
+    ${win.allDay ? "" : `<div class="row">${ic("clock", "sm")}${fmtTime(win.start)} – ${fmtTime(win.end)}</div>`}
+    ${win.location ? `<div class="row">${ic("pin", "sm")}${esc(win.location)}</div>` : ""}
+    ${win.notes ? `<div class="notice" style="white-space:pre-wrap">${esc(win.notes.replace(/<[^>]+>/g, " "))}</div>` : ""}
+    <div class="tiny muted">From ${SRC[win.source].label}. Edit it in Google Calendar; changes show up on the next sync.</div></div>`,
+    `<a class="btn" href="https://calendar.google.com/calendar/r/day/${win.start.getFullYear()}/${win.start.getMonth() + 1}/${win.start.getDate()}" target="_blank" rel="noopener">${ic("google", "sm")}Open in Google</a><button class="btn primary" data-act="close">Done</button>`);
+}
+async function viewFile(fid, name) {
+  let rec; try { rec = await Cloud.getFile(fid); } catch (e) { return toast(e.message, "error"); }
+  if (!rec) return toast("That file isn't on this device. Connect Google to fetch it, or re-upload it here.", "error");
+  const url = URL.createObjectURL(rec.blob); const type = rec.type || guessType(rec.name);
+  let inner;
+  if (/pdf/.test(type)) inner = `<iframe class="viewer" src="${url}" data-blob="${url}"></iframe>`;
+  else if (/image/.test(type)) inner = `<div style="overflow:auto;height:100%;display:grid;place-items:center;background:var(--panel2)"><img src="${url}" style="max-width:100%"></div>`;
+  else if (/text/.test(type)) inner = `<pre style="padding:20px;white-space:pre-wrap;overflow:auto;height:100%">${esc(await rec.blob.text())}</pre>`;
+  else inner = `<div class="empty" style="margin:30px">This file type can't be previewed here.</div>`;
+  modal(esc(name || rec.name), inner, `<a class="btn" href="${url}" target="_blank" rel="noopener">${ic("eye", "sm")}Open in new tab</a><a class="btn primary" href="${url}" download="${esc(rec.name)}">${ic("download", "sm")}Download</a>`, true);
+}
+
+/* =====================================================================
+   FILE PICKING
+   ===================================================================== */
+let pickHandler = null;
+function pick(accept, fn) { const f = $("#filePick"); f.value = ""; f.accept = accept; pickHandler = fn; f.click(); }
+$("#filePick").addEventListener("change", e => { const file = e.target.files[0]; if (file && pickHandler) pickHandler(file); });
+const DROP = {
+  ics: file => handleIcsFile(file),
+  resume: file => handleResume(dropCtx.id, file),
+  syllabus: file => handleSyllabus(file)
+};
+let dropCtx = {};
+document.addEventListener("dragover", e => { const d = e.target.closest?.("[data-drop]"); if (d) { e.preventDefault(); d.classList.add("over"); } });
+document.addEventListener("dragleave", e => { const d = e.target.closest?.("[data-drop]"); if (d) d.classList.remove("over"); });
+document.addEventListener("drop", e => { const d = e.target.closest?.("[data-drop]"); if (!d) return; e.preventDefault(); d.classList.remove("over"); const f = e.dataTransfer.files[0]; if (!f) return; dropCtx = {id: d.dataset.id}; DROP[d.dataset.drop]?.(f); });
+async function handleIcsFile(file) { try { const n = loadIcsText(await file.text(), "file", file.name.replace(/\.ics$/i, "")); S.ics.error = ""; save(); toast(`Imported ${n} events from ${file.name}.`); rerender(); } catch (e) { toast(e.message || "Couldn't read that file.", "error"); } }
+async function handleResume(slotId, file) {
+  const slot = S.resumes.find(r => r.id === slotId) || S.resumes[0];
+  toast("Reading your resume…");
+  try {
+    const parsed = await parseResumeFile(file);
+    const fileId = await saveFile(file);
+    if (slot.current) { slot.history.unshift({fileName: slot.current.fileName, uploaded: slot.current.uploaded}); slot.history = slot.history.slice(0, 8); delFile(slot.current.fileId); }
+    slot.current = {fileId, fileName: file.name, uploaded: Date.now(), parsed};
+    S.ui.resumeSel = slot.id; save(); toast(`${slot.label} resume updated.`); rerender();
+  } catch (e) { console.error(e); toast("Couldn't read that resume. " + (/import|fetch|module/i.test(e.message) ? "The PDF reader needs an internet connection the first time." : "Try a text-based PDF."), "error"); }
+}
+async function handleSyllabus(file) {
+  if (!drawerState) return; const [, c] = findCourse(drawerState.sid, drawerState.cid);
+  if (c.syllabus) delFile(c.syllabus.fileId);
+  c.syllabus = {fileId: await saveFile(file), name: file.name, size: file.size, uploaded: Date.now()}; save(); toast("Syllabus uploaded."); openCourse(drawerState.sid, drawerState.cid, "syllabus"); rerender();
+  if (/pdf|text/.test(file.type) || /\.(pdf|txt)$/i.test(file.name)) scanSyllabus();
+}
+function download(name, text, type = "application/json") { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+function parseCSV(t) { const rows = []; let row = [], f = "", q = false; for (let i = 0; i < t.length; i++) { const ch = t[i]; if (q) { if (ch === '"' && t[i + 1] === '"') { f += '"'; i++; } else if (ch === '"') q = false; else f += ch; } else if (ch === '"') q = true; else if (ch === ",") { row.push(f); f = ""; } else if (ch === "\n" || ch === "\r") { if (ch === "\r" && t[i + 1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; } else f += ch; } if (f || row.length) { row.push(f); rows.push(row); } return rows.filter(r => r.some(x => x.trim())); }
+
+/* =====================================================================
+   ACTIONS (event delegation)
+   ===================================================================== */
+const sem = id => S.semesters.find(s => s.id === id);
+const curGrad = () => S.gradSchools.find(x => x.id === S.ui.gradSel) || [...S.gradSchools].sort((a, b) => (a.rank || 99) - (b.rank || 99))[0];
+const dCourse = () => findCourse(drawerState.sid, drawerState.cid)[1];
+const CLICK = {
+  toggleNav: () => document.body.classList.toggle("nav-open"),
+  nav: a => go(a.dataset.main, a.dataset.sub),
+  navGroup: a => { const id = a.dataset.id, r = route(); if (r.main !== id) { openGroups.add(id); LS.set("focus.navOpen", [...openGroups]); return go(id, NAV.find(n => n.id === id).subs[0][0]); } openGroups.has(id) ? openGroups.delete(id) : openGroups.add(id); LS.set("focus.navOpen", [...openGroups]); renderSide(); },
+  close: () => closeLayer(),
+  overlay: (a, e) => { if (e.target === a) closeLayer(); },
+  /* plan */
+  addSem: () => { const last = S.semesters[S.semesters.length - 1]; S.semesters.push({id: uid(), name: "New semester", status: "planned", courses: []}); save(); rerender(); setTimeout(() => $$(".sem .name").pop()?.select(), 30); },
+  semDel: a => { const s = sem(a.dataset.sem); if (!confirm(`Delete ${s.name} and its ${s.courses.length} courses?`)) return; S.semesters = S.semesters.filter(x => x !== s); save(); rerender(); },
+  semMove: a => { const i = S.semesters.findIndex(s => s.id === a.dataset.sem), j = i + +a.dataset.d; if (j < 0) return; [S.semesters[i], S.semesters[j]] = [S.semesters[j], S.semesters[i]]; save(); rerender(); },
+  cAdd: a => { const s = sem(a.dataset.sem); const c = course("", "", 3, ""); s.courses.push(c); save(); if (route().sub === "courses") { rerender(); openCourse(s.id, c.id, "overview"); } else { rerender(); setTimeout(() => $(`[data-id="${c.id}"][data-f="code"]`)?.focus(), 30); } },
+  cDel: a => { const s = sem(a.dataset.sem), c = s.courses.find(x => x.id === a.dataset.id); if ((c.code || c.title) && !confirm(`Remove ${c.code || "this course"}?`)) return; if (c.syllabus) delFile(c.syllabus.fileId); s.courses = s.courses.filter(x => x !== c); save(); rerender(); },
+  openCourse: (a, e) => { if (e.target.closest("input,select")) return; openCourse(a.dataset.sem, a.dataset.id, "overview"); },
+  dTab: (a, e) => { e.preventDefault(); openCourse(drawerState.sid, drawerState.cid, a.dataset.t); },
+  sylUpload: () => pick(".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.txt", handleSyllabus),
+  sylDel: () => { const c = dCourse(); if (!confirm("Remove this syllabus?")) return; delFile(c.syllabus.fileId); c.syllabus = null; save(); openCourse(drawerState.sid, drawerState.cid, "syllabus"); rerender(); },
+  ohAdd: () => { dCourse().officeHours.push({id: uid(), days: [], start: "", end: "", location: "", who: "", from: "", to: ""}); save(); openCourse(drawerState.sid, drawerState.cid, "hours"); },
+  ohDel: a => { const c = dCourse(); c.officeHours = c.officeHours.filter(o => o.id !== a.dataset.oh); save(); openCourse(drawerState.sid, drawerState.cid, "hours"); rerender(); },
+  kdAdd: () => { dCourse().keyDates.push({id: uid(), label: "", date: "", time: ""}); save(); openCourse(drawerState.sid, drawerState.cid, "dates"); setTimeout(() => $$('[data-k="label"][data-kd]').pop()?.focus(), 30); },
+  kdDel: a => { const c = dCourse(); c.keyDates = c.keyDates.filter(k => k.id !== a.dataset.kd); save(); openCourse(drawerState.sid, drawerState.cid, "dates"); rerender(); },
+  viewFile: a => viewFile(a.dataset.fid, a.dataset.name),
+  /* notes */
+  noteAdd: () => { const t = $("#noteTitle").value.trim(), b = $("#noteBody").value.trim(); if (!t && !b) return toast("Write something first.", "error"); S.notes.unshift({id: uid(), title: t || "Untitled", body: b, course: $("#noteCourse").value.trim(), at: Date.now()}); save(); rerender(); },
+  noteDel: a => { S.notes = S.notes.filter(n => n.id !== a.dataset.id); save(); rerender(); },
+  /* calendar */
+  calNav: a => { calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + +a.dataset.d, 1); rerender(); },
+  calToday: () => { calCursor = new Date(); calCursor.setDate(1); rerender(); },
+  calView: a => { S.settings.calView = a.dataset.v; save(); rerender(); },
+  gview: a => { S.settings.gview = a.dataset.v; save(); rerender(); },
+  openDay: (a, e) => { if (e.target.closest(".ev")) return; const d = parseYmd(a.dataset.date), l = eventsOnDay(d);
+    modal(fmtDate(d, {weekday: "long", month: "long", day: "numeric"}), agendaRows(l, "Nothing scheduled."), `<button class="btn" data-act="close">Close</button><button class="btn primary" data-act="newEvent" data-date="${a.dataset.date}">${ic("plus", "sm")}Add event</button>`); },
+  openEvent: (a, e) => { e.stopPropagation(); eventDetail(a.dataset.id); },
+  newEvent: a => eventModal({}, a.dataset.date),
+  evSave: a => {
+    const title = $("#evTitle").value.trim(), date = $("#evDate").value; if (!title || !date) return toast("Add a title and date.", "error");
+    const allDay = $("#evAll").checked || !$("#evStart").value;
+    const rec = {title, date, allDay, start: allDay ? "" : $("#evStart").value, end: allDay ? "" : $("#evEnd").value, category: $("#evCat").value, location: $("#evLoc").value.trim(), notes: $("#evNotes").value.trim()};
+    if (a.dataset.id) Object.assign(S.events.find(e => e.id === a.dataset.id), rec); else S.events.push({id: "m_" + uid(), ...rec});
+    save(); closeLayer(); rerender(); toast("Event saved.");
+  },
+  evDel: a => { S.events = S.events.filter(e => e.id !== a.dataset.id); save(); closeLayer(); rerender(); toast("Event deleted."); },
+  saveGcalId: () => { S.settings.calendarId = $("#gcalId").value.trim(); S.settings.calView = "google"; save(); go("calendar", "month"); },
+  saveIcsUrl: async () => { const u = $("#icsUrl").value.trim(); if (!/^(https?|webcal):\/\//i.test(u)) return toast("That doesn't look like a link. It should start with https://", "error"); setIcsUrl(u); toast("Syncing…"); await syncNow(); },
+  toggleSecret: () => { const i = $("#icsUrl"); i.type = i.type === "password" ? "text" : "password"; },
+  syncNow: () => syncNow(),
+  clearIcs: () => { if (!confirm("Remove the iCal link and its events from FOCUS?")) return; setIcsUrl(""); S.ics = {events: [], lastSync: null, source: "", label: ""}; save(); rerender(); },
+  gSignIn: async () => { try { await Cloud.signIn(); } catch (e) { toast(e.message, "error"); } rerender(); },
+  gSignOut: () => Cloud.signOut(),
+  gcalRefresh: async () => { try { if (!(await needGoogle())) return; await gcalRefresh(); } catch (e) { toast(e.message, "error"); } },
+  syncPush: async () => { try { await Cloud.push(); toast("Saved to Google Drive."); rerender(); } catch (e) { toast(e.message, "error"); } },
+  syncPull: async () => { try { const f = await Cloud.driveFind("focus-state.json"); if (!f) return toast("Nothing saved in Drive yet."); S.updatedAt = 0; await Cloud.pull(); rerender(); } catch (e) { toast(e.message, "error"); } },
+  loadCals: async () => { try { S.ui.calList = await gcalCalendars(); save({silent: true}); rerender(); } catch (e) { toast(e.message, "error"); } },
+  testNotify: () => notify("FOCUS reminders are on", "You'll get alerts like this before exams and deadlines.", "test"),
+  install: async () => { if (!deferredInstall) return; deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall = null; rerender(); },
+  sylScan: () => scanSyllabus(),
+  scanApply: () => applyScan(),
+  backToCourse: () => { if (scanState) openCourse(scanState.sid, scanState.cid, "syllabus"); else closeLayer(); },
+  kdPush: () => pushKeyDates(),
+  ohPush: () => pushOfficeHours(),
+  gradPush: () => pushGradDeadline(),
+  resEditToggle: () => { S.ui.resumeEdit = !S.ui.resumeEdit; save({silent: true}); rerender(); },
+  rEntryAdd: a => { curResume().sections[+a.dataset.si].entries.push({org: "", location: "", role: "", date: "", details: [], bullets: []}); resumeEdited(); rerender(); },
+  rEntryDel: a => { curResume().sections[+a.dataset.si].entries.splice(+a.dataset.ei, 1); resumeEdited(); rerender(); },
+  rSecAdd: () => { curResume().sections.push({title: "NEW SECTION", entries: [{org: "", location: "", role: "", date: "", details: [], bullets: []}]}); resumeEdited(); rerender(); },
+  rSecDel: a => { if (!confirm("Delete this whole section?")) return; curResume().sections.splice(+a.dataset.si, 1); resumeEdited(); rerender(); },
+  msAdd: () => { S.research.milestones.push({id: uid(), term: currentSemester().name, text: "", done: false}); save(); rerender(); setTimeout(() => $$('[data-act="msField"][data-k="text"]').pop()?.focus(), 30); },
+  msDel: a => { S.research.milestones = S.research.milestones.filter(m => m.id !== a.dataset.id); save(); rerender(); },
+  rlAdd: () => { S.research.entries.unshift({id: uid(), term: currentSemester().name, lab: "", mentor: "", hours: "", question: "", method: "", result: "", next: "", outputs: "", updated: Date.now()}); save(); rerender(); },
+  rlDel: a => { if (!confirm("Delete this log entry?")) return; S.research.entries = S.research.entries.filter(e => e.id !== a.dataset.id); save(); rerender(); },
+  rlExport: () => download(`research-log-${ymd(new Date())}.md`, `# Research log: ${S.profile.fullName}\n\n` + S.research.entries.map(e => `## ${e.term}${e.lab ? " · " + e.lab : ""}${e.mentor ? " (mentor: " + e.mentor + ")" : ""}\n\n- **Question:** ${e.question}\n- **Method:** ${e.method}\n- **Result:** ${e.result}\n- **Next step:** ${e.next}\n- **Outputs:** ${e.outputs}\n- **Hours/week:** ${e.hours}\n`).join("\n") + `\n## Milestones\n\n` + S.research.milestones.map(m => `- [${m.done ? "x" : " "}] ${m.term}: ${m.text}`).join("\n"), "text/markdown"),
+  pickIcs: () => pick(".ics,text/calendar", handleIcsFile),
+  agendaDays: a => { S.ui.agendaDays = +a.dataset.n; save(); rerender(); },
+  /* resume */
+  resSel: a => { S.ui.resumeSel = a.dataset.id; save(); rerender(); },
+  resUpload: a => { const id = a.dataset.id; pick(".pdf,.txt", f => handleResume(id, f)); },
+  resView: a => { const r = S.resumes.find(x => x.id === a.dataset.id); viewFile(r.current.fileId, r.current.fileName); },
+  resAddSlot: () => { const l = prompt("Name this resume version (e.g. ETSC, Research, Internship):"); if (!l) return; const r = {id: uid(), label: l.trim(), current: null, history: []}; S.resumes.push(r); S.ui.resumeSel = r.id; save(); rerender(); },
+  resRename: a => { const r = S.resumes.find(x => x.id === a.dataset.id), l = prompt("Rename resume version:", r.label); if (l) { r.label = l.trim(); save(); rerender(); } },
+  resDelSlot: a => { const r = S.resumes.find(x => x.id === a.dataset.id); if (!confirm(`Remove the ${r.label} resume?`)) return; if (r.current) delFile(r.current.fileId); S.resumes = S.resumes.filter(x => x !== r); if (!S.resumes.length) S.resumes.push({id: uid(), label: "General", current: null, history: []}); S.ui.resumeSel = null; save(); rerender(); },
+  /* grad */
+  gSel: a => { S.ui.gradSel = a.dataset.id; save(); rerender(); },
+  gAdd: () => { const g = {id: uid(), rank: S.gradSchools.length + 1, name: "New school", location: "", program: "PhD", status: "Researching", deadline: "", fee: "", minGpa: "", gre: "", english: "", website: "", faculty: "", info: "", notes: "", requirements: SEED.requirements.map(t => ({id: uid(), text: t, done: false})), files: []}; S.gradSchools.push(g); S.ui.gradSel = g.id; save(); rerender(); setTimeout(() => $('[data-act="gField"][data-k="name"]')?.select(), 30); },
+  gDel: a => { const g = S.gradSchools.find(x => x.id === a.dataset.id); if (!confirm(`Delete ${g.name}?`)) return; g.files.forEach(f => delFile(f.fileId)); S.gradSchools = S.gradSchools.filter(x => x !== g); S.ui.gradSel = null; save(); rerender(); },
+  reqAdd: () => { curGrad().requirements.push({id: uid(), text: "", done: false}); save(); rerender(); setTimeout(() => $$('[data-act="reqText"]').pop()?.focus(), 30); },
+  reqDel: a => { const g = curGrad(); g.requirements = g.requirements.filter(r => r.id !== a.dataset.id); save(); rerender(); },
+  gFile: () => pick("*/*", async f => { const g = curGrad(); g.files.push({fileId: await saveFile(f), name: f.name}); save(); rerender(); toast("File attached."); }),
+  gFileDel: a => { const g = curGrad(); delFile(a.dataset.fid); g.files = g.files.filter(f => f.fileId !== a.dataset.fid); save(); rerender(); },
+  gExport: () => download("grad-schools.json", JSON.stringify(S.gradSchools.map(({files, id, ...g}) => g), null, 2)),
+  gImport: () => pick(".json,.csv,text/csv,application/json", async f => {
+    try {
+      const t = await f.text(); let rows;
+      if (/\.json$/i.test(f.name) || /^\s*[\[{]/.test(t)) { const j = JSON.parse(t); rows = Array.isArray(j) ? j : j.gradSchools || [j]; }
+      else { const [h, ...r] = parseCSV(t); const keys = h.map(x => x.trim().toLowerCase().replace(/[^a-z]/g, "")); const map = {school: "name", university: "name", name: "name", program: "program", location: "location", deadline: "deadline", fee: "fee", applicationfee: "fee", gre: "gre", gpa: "minGpa", mingpa: "minGpa", website: "website", url: "website", rank: "rank", notes: "notes", info: "info", requirements: "requirements", faculty: "faculty", english: "english", status: "status"};
+        rows = r.map(v => Object.fromEntries(keys.map((k, i) => [map[k] || k, (v[i] || "").trim()]))); }
+      let added = 0, updated = 0;
+      for (const x of rows) { if (!x.name) continue;
+        let reqs = x.requirements; if (typeof reqs === "string") reqs = reqs.split(/;|\n/).map(s => s.trim()).filter(Boolean);
+        reqs = (reqs || []).map(r => typeof r === "string" ? {id: uid(), text: r, done: false} : {id: uid(), text: r.text || "", done: !!r.done});
+        const ex = S.gradSchools.find(g => g.name.toLowerCase() === String(x.name).toLowerCase());
+        const clean = Object.fromEntries(Object.entries(x).filter(([k, v]) => v !== "" && k !== "requirements" && k !== "id" && k !== "files"));
+        if (clean.deadline && !/^\d{4}-\d{2}-\d{2}$/.test(clean.deadline)) { const d = new Date(clean.deadline); clean.deadline = isNaN(d) ? "" : ymd(d); }
+        if (ex) { Object.assign(ex, clean); if (reqs.length) ex.requirements = reqs; updated++; }
+        else { S.gradSchools.push({id: uid(), rank: S.gradSchools.length + 1, location: "", program: "PhD", status: "Researching", deadline: "", fee: "", minGpa: "", gre: "", english: "", website: "", faculty: "", info: "", notes: "", ...clean, requirements: reqs.length ? reqs : SEED.requirements.map(t => ({id: uid(), text: t, done: false})), files: []}); added++; }
+      }
+      save(); rerender(); toast(`Imported: ${added} new, ${updated} updated.`);
+    } catch (e) { toast("Couldn't read that file: " + e.message, "error"); }
+  }),
+  /* settings */
+  theme: a => { S.settings.theme = a.dataset.v; save(); applyTheme(); rerender(); },
+  accent: a => { S.settings.accent = a.dataset.v; save(); applyTheme(); rerender(); },
+  exportAll: () => download(`focus-backup-${ymd(new Date())}.json`, JSON.stringify({...S, ui: {}}, null, 2)),
+  importAll: () => pick(".json,application/json", async f => { try { const j = JSON.parse(await f.text()); if (!j.semesters || !j.settings) throw new Error("Not a FOCUS backup."); S = migrate(j); save(); applyTheme(); rerender(); toast("Backup restored."); } catch (e) { toast(e.message, "error"); } }),
+  resetAll: () => { if (!confirm("Reset everything to the original plan? This clears your edits.")) return; const keep = {clientId: S.settings.clientId, gcalIds: S.settings.gcalIds}; S = seedState(); Object.assign(S.settings, keep); save(); applyTheme(); rerender(); toast("FOCUS reset."); }
+};
+const CHANGE = {
+  cField: a => { const s = sem(a.dataset.sem), c = s.courses.find(x => x.id === a.dataset.id), f = a.dataset.f;
+    c[f] = f === "apply" ? a.checked : f === "credits" ? +a.value : a.value; save(); rerender(); },
+  semName: a => { sem(a.dataset.sem).name = a.value.trim() || "Semester"; save(); rerender(); },
+  semStatus: a => { sem(a.dataset.sem).status = a.value; save(); rerender(); },
+  courseSem: a => { S.ui.courseSem = a.value; save(); rerender(); },
+  targetGpa: a => { S.ui.targetGpa = a.value; save(); rerender(); },
+  dField: a => { const c = dCourse(), k = a.dataset.k; c[k] = k === "apply" ? a.checked : k === "credits" ? +a.value : a.value; save(); rerender(); if (["code", "title"].includes(k)) openCourse(drawerState.sid, drawerState.cid); },
+  ohDay: a => { const o = dCourse().officeHours.find(x => x.id === a.dataset.oh), d = +a.dataset.d; o.days = a.checked ? [...new Set([...(o.days || []), d])].sort() : o.days.filter(x => x !== d); save(); rerender(); },
+  ohField: a => { const o = dCourse().officeHours.find(x => x.id === a.dataset.oh); o[a.dataset.k] = a.value; save(); rerender(); },
+  kdField: a => { const k = dCourse().keyDates.find(x => x.id === a.dataset.kd); k[a.dataset.k] = a.value; save(); rerender(); },
+  setFlag: a => { S.settings[a.dataset.k] = a.checked; save(); },
+  gField: a => { const g = curGrad(), k = a.dataset.k; g[k] = k === "rank" ? (a.value ? +a.value : "") : a.value; save(); rerender(); },
+  reqDone: a => { curGrad().requirements.find(r => r.id === a.dataset.id).done = a.checked; save(); rerender(); },
+  reqText: a => { curGrad().requirements.find(r => r.id === a.dataset.id).text = a.value; save(); },
+  birth: a => { S.profile.birthdate = a.value; save(); rerender(); },
+  pField: a => { S.profile[a.dataset.k] = a.value; save(); rerender(); },
+  setFlagR: a => { S.settings[a.dataset.k] = a.checked; save(); rerender(); },
+  setNum: a => { S.settings[a.dataset.k] = +a.value || 0; save(); rerender(); },
+  setText: a => { S.settings[a.dataset.k] = a.value.trim(); save(); rerender(); },
+  prereqs: a => { S.prereqs = a.value; save(); rerender(); },
+  calPick: a => { const id = a.dataset.primary === "1" ? "primary" : a.dataset.id; const set = new Set(S.settings.gcalIds || []); a.checked ? set.add(id) : set.delete(id); S.settings.gcalIds = [...set]; save(); gcalRefresh(true).catch(e => toast(e.message, "error")); },
+  notifyToggle: async a => { if (a.checked) { if (typeof Notification === "undefined") return toast("Notifications aren't supported here.", "error"); const p = await Notification.requestPermission(); S.settings.notify = p === "granted"; if (p !== "granted") toast("Notifications weren't allowed.", "error"); else checkReminders(); } else S.settings.notify = false; save(); rerender(); },
+  remDay: a => { const d = +a.dataset.d, set = new Set(S.settings.remindDays); a.checked ? set.add(d) : set.delete(d); S.settings.remindDays = [...set].sort((x, y) => y - x); save(); rerender(); },
+  remSrc: a => { const set = new Set(S.settings.remindSources); a.checked ? set.add(a.dataset.k) : set.delete(a.dataset.k); S.settings.remindSources = [...set]; save(); rerender(); },
+  msDone: a => { S.research.milestones.find(m => m.id === a.dataset.id).done = a.checked; save(); rerender(); },
+  msField: a => { S.research.milestones.find(m => m.id === a.dataset.id)[a.dataset.k] = a.value; save(); },
+  rlField: a => { const e = S.research.entries.find(x => x.id === a.dataset.id); e[a.dataset.k] = a.value; e.updated = Date.now(); save(); if (a.tagName === "SELECT") rerender(); }
+};
+function curResume() { const sel = S.resumes.find(r => r.id === S.ui.resumeSel) || S.resumes.find(r => r.current) || S.resumes[0]; return sel.current.parsed; }
+function resumeEdited() { const sel = S.resumes.find(r => r.id === S.ui.resumeSel) || S.resumes.find(r => r.current); if (sel?.current) sel.current.edited = Date.now(); save(); }
+const INPUT = {
+  rEdit: a => { const p = curResume(), path = a.dataset.path.split("."), v = a.value;
+    if (path[0] === "name") p.name = v; else if (path[0] === "contacts") p.contacts = v.split(/\s*[•|]\s*/).filter(Boolean);
+    else if (path[0] === "skills") p.skills = v.split(",").map(x => x.trim()).filter(Boolean);
+    else if (path.length === 3) p.sections[+path[1]].title = v;
+    else { const e = p.sections[+path[1]].entries[+path[2]]; if (path[3] === "bullets") e.bullets = v.split("\n").map(x => x.trim()).filter(Boolean); else e[path[3]] = v; }
+    clearTimeout(INPUT._r); INPUT._r = setTimeout(resumeEdited, 400); },
+  agendaQ: a => { S.ui.agendaQ = a.value; clearTimeout(INPUT._t); INPUT._t = setTimeout(() => { save(); rerender(); const i = $('[data-act="agendaQ"]'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); }
+};
+document.addEventListener("click", e => { const a = e.target.closest("[data-act]"); if (!a) return; const fn = CLICK[a.dataset.act]; if (fn && !(a.tagName === "INPUT" || a.tagName === "SELECT" || a.tagName === "TEXTAREA")) fn(a, e); });
+document.addEventListener("change", e => { const a = e.target.closest("[data-act]"); if (a && CHANGE[a.dataset.act]) CHANGE[a.dataset.act](a, e); });
+document.addEventListener("input", e => { const a = e.target.closest("[data-act]"); if (a && INPUT[a.dataset.act]) INPUT[a.dataset.act](a, e); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeLayer(); if (e.key === "Enter" && e.target.matches("input.cell, input.name")) e.target.blur(); });
+
+/* ---------------- boot ---------------- */
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; if (route().sub === "reminders") rerender(); });
+S = (() => { const saved = LS.get(STORE_KEY, null); return saved ? migrate(saved) : seedState(); })();
+LS.set(STORE_KEY, S);
+Cloud.restore();
+applyTheme();
+if (!location.hash) location.replace("#/home");
+render();
+if (icsUrl() && S.settings.autoSync && (!S.ics.lastSync || Date.now() - S.ics.lastSync > 15 * 60 * 1000)) syncNow(true);
+if (Cloud.signedIn) Cloud.afterSignIn();
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js").catch(() => {});
+checkReminders(); setInterval(checkReminders, 15 * 60 * 1000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState !== "visible") return; checkReminders();
+  if (Cloud.signedIn && S.settings.cloudSync) Cloud.pull().then(rerender).catch(() => {}); });
+window.FOCUS = {parseICS, expandRule, parseResumeLines, pdfLines, totals, extractSyllabus, planWarnings, Cloud, migrate, get state() { return S; }};
+</script>
+</body>
+</html>
